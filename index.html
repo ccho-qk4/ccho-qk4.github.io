@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clash Royale Idle Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #2e3d53; color: #fff; margin: 0; padding: 24px; }
+    .section { margin-bottom: 24px; }
+    button { margin: 4px; padding: 8px 16px; font-size: 1em; }
+    .troop-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .upgrade-section { background: #22304a; padding: 16px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Clash Royale Idle Game</h1>
+  <div class="section">
+    <h2>Goblin Stadium</h2>
+    <p>Trophies: <span id="trophies">0</span></p>
+    <p>Gold: <span id="gold">0</span></p>
+    <p><span id="goldPerSec">0</span> gold/sec</p>
+    <button id="mineGoldBtn">Mine Gold (+5)</button>
+    <button id="battleBtn">Battle! (Cost: 500 gold)</button>
+  </div>
+  <div class="section">
+    <h3>Troops Deployed for Battle</h3>
+    <div id="troopList"></div>
+    <p>Win Chance: <span id="winChance">50</span>%</p>
+  </div>
+  <div class="section upgrade-section">
+    <h3>Troops & Upgrades</h3>
+    <div>
+      <button id="buyElixirBtn">Buy Elixir Collector (Cost: 50 gold)</button>
+      <span>Elixir Collectors: <span id="elixirCount">0</span></span>
+    </div>
+    <div>
+      <button id="buyGoblinBtn">Buy Goblins (Cost: 100 gold)</button>
+      <span>Goblins: <span id="goblinCount">0</span></span>
+    </div>
+  </div>
+  <script>
+    // Game state
+    let trophies = 0;
+    let gold = 0;
+    let goldPerSec = 0;
+    let mineGoldBase = 500;
+    let goblins = 0;
+    let elixirCollectors = 0;
+
+    // Troop deployment
+    let deployedTroops = { Goblins: 0 };
+    let troopTypes = ["Goblins"];
+    let troopOwned = { Goblins: 0 };
+
+    // DOM elements
+    const trophiesSpan = document.getElementById('trophies');
+    const goldSpan = document.getElementById('gold');
+    const goldPerSecSpan = document.getElementById('goldPerSec');
+    const mineGoldBtn = document.getElementById('mineGoldBtn');
+    const battleBtn = document.getElementById('battleBtn');
+    const winChanceSpan = document.getElementById('winChance');
+    const troopListDiv = document.getElementById('troopList');
+    const buyElixirBtn = document.getElementById('buyElixirBtn');
+    const elixirCountSpan = document.getElementById('elixirCount');
+    const buyGoblinBtn = document.getElementById('buyGoblinBtn');
+    const goblinCountSpan = document.getElementById('goblinCount');
+
+    function updateDisplay() {
+      trophiesSpan.textContent = trophies;
+      goldSpan.textContent = Math.floor(gold);
+      goldPerSecSpan.textContent = goldPerSec;
+      elixirCountSpan.textContent = elixirCollectors;
+      goblinCountSpan.textContent = goblins;
+      // Calculate current mine gold value
+      let bonus = 1 + goblins * 0.1;
+      let mineGoldValue = mineGoldBase * bonus;
+      mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
+      // Update troop controls
+      troopListDiv.innerHTML = '';
+      troopTypes.forEach(type => {
+        const div = document.createElement('div');
+        div.className = 'troop-controls';
+        div.innerHTML = `
+          <span>${type} (Owned: ${troopOwned[type]})</span>
+          <button onclick="changeTroop('${type}', -1)">-</button>
+          <span id="deployed_${type}">${deployedTroops[type]}</span>
+          <button onclick="changeTroop('${type}', 1)">+</button>
+        `;
+        troopListDiv.appendChild(div);
+      });
+      // Win chance calculation
+      let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+      let winChance = 50 + Math.floor(totalTroops / 10);
+      winChanceSpan.textContent = winChance;
+      // Enable/disable battle button
+      battleBtn.disabled = gold < 500;
+    }
+
+    // Troop deployment controls
+    window.changeTroop = function(type, delta) {
+      if (delta === 1 && deployedTroops[type] < troopOwned[type]) {
+        deployedTroops[type]++;
+      } else if (delta === -1 && deployedTroops[type] > 0) {
+        deployedTroops[type]--;
+      }
+      updateDisplay();
+    };
+
+    // Mining gold
+    mineGoldBtn.addEventListener('click', () => {
+      let bonus = 1 + goblins * 0.05;
+      gold += mineGoldBase * bonus;
+      updateDisplay();
+    });
+
+    // Battle logic
+    function showBattleProgress(callback) {
+      // Make button unclickable and show countdown
+      battleBtn.disabled = true;
+      let originalText = battleBtn.textContent;
+      let secondsLeft = 15;
+      battleBtn.textContent = `Battling (${secondsLeft}s)`;
+
+      // Create a flex container for battleBtn and progressBar if not already present
+      if (!battleBtn.parentNode.classList.contains('battle-flex')) {
+        const flexDiv = document.createElement('div');
+        flexDiv.className = 'battle-flex';
+        flexDiv.style.display = 'flex';
+        flexDiv.style.alignItems = 'center';
+        // Move battleBtn into flexDiv
+        battleBtn.parentNode.insertBefore(flexDiv, battleBtn);
+        flexDiv.appendChild(battleBtn);
+      }
+      const flexDiv = battleBtn.parentNode;
+
+      // Remove any existing progress bar
+      const oldBar = document.getElementById('battleProgressBar');
+      if (oldBar) oldBar.remove();
+
+      // Create progress bar with same height as button, width 120px
+      const progressBar = document.createElement('div');
+      progressBar.id = 'battleProgressBar';
+      progressBar.style.width = '120px';
+      progressBar.style.height = `${battleBtn.offsetHeight}px`;
+      progressBar.style.background = '#22304a';
+      progressBar.style.borderRadius = '8px';
+      progressBar.style.marginLeft = '12px';
+      progressBar.style.position = 'relative';
+      progressBar.style.flexShrink = '0';
+
+      const fill = document.createElement('div');
+      fill.style.height = '100%';
+      fill.style.width = '0%';
+      fill.style.background = '#4caf50';
+      fill.style.borderRadius = '8px';
+      fill.style.transition = 'width 0.2s linear';
+      progressBar.appendChild(fill);
+
+      // Insert progress bar to the right of the button
+      flexDiv.appendChild(progressBar);
+
+      let elapsed = 0;
+      const duration = 15; // seconds
+      const interval = setInterval(() => {
+        elapsed++;
+        secondsLeft--;
+        fill.style.width = `${(elapsed / duration) * 100}%`;
+        battleBtn.textContent = `Battling (${secondsLeft}s)`;
+        if (elapsed >= duration) {
+          clearInterval(interval);
+          progressBar.remove();
+          battleBtn.textContent = originalText;
+          callback();
+        }
+      }, 1000);
+    }
+
+    battleBtn.addEventListener('click', () => {
+      if (gold < 500) return;
+      gold -= 500;
+      battleBtn.disabled = true;
+      showBattleProgress(() => {
+        let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+        let winChance = 50 + Math.floor(totalTroops / 10);
+        let win = Math.random() * 100 < winChance;
+        if (win) {
+          let trophiesWon = 26 + Math.floor(Math.random() * 8); // 26-33
+          trophies += trophiesWon;
+          alert(`Victory! You won ${trophiesWon} trophies.`);
+        } else {
+          let trophiesLost = 20 + Math.floor(Math.random() * 8); // 20-27
+          trophies = Math.max(0, trophies - trophiesLost);
+          alert(`Defeat! You lost ${trophiesLost} trophies.`);
+        }
+        battleBtn.disabled = false;
+        updateDisplay();
+      });
+    });
+
+    // Update button labels for new costs
+    buyElixirBtn.textContent = "Buy Elixir Collector (Cost: 50 gold)";
+    buyGoblinBtn.textContent = "Buy Goblins (Cost: 100 gold)";
+
+    // Buy Elixir Collector
+    buyElixirBtn.addEventListener('click', () => {
+      if (gold >= 50) {
+        gold -= 50;
+        elixirCollectors++;
+        goldPerSec = elixirCollectors * 1;
+        updateDisplay();
+      }
+    });
+
+    // Buy Goblins
+    buyGoblinBtn.addEventListener('click', () => {
+      if (gold >= 100) {
+        gold -= 100;
+        goblins++;
+        troopOwned.Goblins++;
+        updateDisplay();
+      }
+    });
+
+    // Passive gold generation
+    setInterval(() => {
+      gold += goldPerSec;
+      updateDisplay();
+    }, 1000);
+
+    updateDisplay();
+  </script>
+</body>
+</html>
