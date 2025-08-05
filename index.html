@@ -219,24 +219,32 @@ button:hover {
     }, false);
 
     // Game state
-    let trophies = 0;
-    let gold = 0;
-    let goldPerSec = 0;
-    let mineGoldBase = 5000;
-    let goblins = 0;
-    let elixirCollectors = 0;
+let trophies = 0;
+let gold = 0;
+let goldPerSec = 0;
+let mineGoldBase = 5000;
+let goblins = 0;
+let elixirCollectors = 0;
 
-    // Troop deployment
-    let deployedTroops = { Goblins: 0 };
-    let troopTypes = ["Goblins"];
-    let troopOwned = { Goblins: 0 };
+// Troop deployment
+let deployedTroops = { Goblins: 0 };
+let troopTypes = ["Goblins"];
+let troopOwned = { Goblins: 0 };
 
-    // Battle state
-    let battleInProgress = false; // <-- Add this flag
+// Battle state
+let battleInProgress = false; // <-- Add this flag
 
-    // Add to game state section
+// Add to game state section
 let skeletons = 0;
 let criticalHitChance = 0;
+
+// Game loop for passive gold generation
+setInterval(() => {
+  if (!battleInProgress) {
+    gold += goldPerSec;
+    goldSpan.textContent = Math.floor(gold);
+  }
+}, 1000);
 
 // DOM elements
 const trophiesSpan = document.getElementById('trophies');
@@ -731,15 +739,6 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   checkArenaUpgrade();
 });
 
-// Add this after your initial game state declarations, right after your DOM elements
-const gameLoop = setInterval(() => {
-  if (!battleInProgress) {
-    gold += goldPerSec;
-    updateDisplay();
-  }
-}, 1000);
-
-// Make sure it's before your event listeners and other function definitions
   </script>
 </body>
 </html>
