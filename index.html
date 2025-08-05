@@ -112,6 +112,23 @@ button:hover {
   max-width: 280px;
   z-index: 100;
 }
+.upgrade-arena {
+  background: #22304a;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 2px solid #ffe066;
+}
+
+.upgrade-arena h3 {
+  color: #ffe066;
+  margin-top: 0;
+}
+
+#arenaUpgradeRequirements {
+  margin: 12px 0;
+  line-height: 1.5;
+}
   </style>
 </head>
 <body>
@@ -145,7 +162,7 @@ button:hover {
     <div class="upgrade-row">
       <div class="upgrade-label">
         Goblins
-        <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold mined by 0.5')">
+        <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold mined by 5%')">
       </div>
       <button id="buyGoblinBtn">
         100
@@ -154,6 +171,12 @@ button:hover {
       <span>Goblins: <span id="goblinCount">0</span></span>
     </div>
   </div>
+  <!-- Add this after your first section -->
+<div class="section upgrade-arena" style="display: none;">
+  <h3>Arena Upgrade Available!</h3>
+  <p id="arenaUpgradeRequirements"></p>
+  <button id="upgradeArenaBtn">Upgrade Arena</button>
+</div>
   <script>
     // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
     let lastTouchEnd = 0;
@@ -197,6 +220,22 @@ button:hover {
     const elixirCountSpan = document.getElementById('elixirCount');
     const buyGoblinBtn = document.getElementById('buyGoblinBtn');
     const goblinCountSpan = document.getElementById('goblinCount');
+
+    const ARENAS = [
+  { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [] },
+  { name: "Bone Pit", trophies: 300, cost: 10000, troops: [{ type: "Goblins", required: 100 }] },
+  { name: "Barbarian Bowl", trophies: 600, cost: 15000, troops: [{ type: "Skeletons", required: 100 }] },
+  { name: "Spell Valley", trophies: 1000, cost: 20000, troops: [{ type: "Barbarians", required: 100 }] },
+  { name: "Builder's Workshop", trophies: 1300, cost: 25000, troops: [{ type: "Wizards", required: 100 }] },
+  { name: "Pekka's Playhouse", trophies: 1600, cost: 30000, troops: [{ type: "Valkyrie", required: 100 }] },
+  { name: "Royal Arena", trophies: 2000, cost: 35000, troops: [{ type: "Mini Pekka", required: 100 }] },
+  { name: "Frozen Peak", trophies: 2300, cost: 40000, troops: [{ type: "Knights", required: 100 }] },
+  { name: "Jungle Arena", trophies: 2600, cost: 45000, troops: [{ type: "Ice Golem", required: 100 }] },
+  { name: "Hog Mountain", trophies: 3000, cost: 50000, troops: [{ type: "Hog Riders", required: 100 }] }
+];
+
+let currentArena = 0; // Index of current arena
+let unlockedTroops = ["Goblins"]; // Start with just Goblins
 
     function updateDisplay() {
       trophiesSpan.textContent = trophies;
@@ -354,16 +393,25 @@ button:hover {
         let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
         let winChance = 50 + Math.floor(totalTroops / 10);
         let win = Math.random() * 100 < winChance;
+        
         if (win) {
-          let trophiesWon = 26 + Math.floor(Math.random() * 8); // 26-33
-          trophies += trophiesWon;
+          let trophiesWon = 26 + Math.floor(Math.random() * 8);
+          // Cap trophies at next arena threshold if requirements aren't met
+          const nextArena = ARENAS[currentArena + 1];
+          if (nextArena && trophies + trophiesWon > nextArena.trophies) {
+            trophies = nextArena.trophies;
+          } else {
+            trophies += trophiesWon;
+          }
           alert(`Victory! You won ${trophiesWon} trophies.`);
         } else {
-          let trophiesLost = 20 + Math.floor(Math.random() * 8); // 20-27
+          let trophiesLost = 20 + Math.floor(Math.random() * 8);
           trophies = Math.max(0, trophies - trophiesLost);
           alert(`Defeat! You lost ${trophiesLost} trophies.`);
         }
+        
         updateDisplay();
+        checkArenaUpgrade();
       });
     });
 
@@ -464,6 +512,125 @@ button:hover {
       setTimeout(() => {
         document.addEventListener('click', closePopup);
       }, 0);
+    }
+
+    // Add this to your JavaScript
+function checkArenaUpgrade() {
+  const nextArena = ARENAS[currentArena + 1];
+  if (!nextArena) return; // No more arenas
+
+  const upgradeSection = document.querySelector('.upgrade-arena');
+  const reqDisplay = document.getElementById('arenaUpgradeRequirements');
+  const upgradeBtn = document.getElementById('upgradeArenaBtn');
+
+  // Check if we've hit trophy threshold
+  if (trophies >= nextArena.trophies) {
+    // Show upgrade section
+    upgradeSection.style.display = 'block';
+    
+    // Check requirements
+    const hasGold = gold >= nextArena.cost;
+    const hasTroops = nextArena.troops.every(t => troopOwned[t.type] >= t.required);
+    
+    // Update requirements text
+    let reqText = `Requirements for ${nextArena.name}:<br>`;
+    reqText += `- ${nextArena.cost} Gold<br>`;
+    nextArena.troops.forEach(t => {
+      reqText += `- ${t.required} ${t.type}<br>`;
+    });
+    reqDisplay.innerHTML = reqText;
+
+    // Enable/disable button based on requirements
+    upgradeBtn.disabled = !(hasGold && hasTroops);
+
+    // Highlight trophies if can't upgrade
+    trophiesSpan.style.color = (!hasGold || !hasTroops) ? '#e74c3c' : '#fff';
+  } else {
+    upgradeSection.style.display = 'none';
+    trophiesSpan.style.color = '#fff';
+  }
+}
+
+// Upgrade arena button click handler
+document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
+  const nextArena = ARENAS[currentArena + 1];
+  if (!nextArena) return;
+
+  // Deduct costs
+  gold -= nextArena.cost;
+  nextArena.troops.forEach(t => {
+    troopOwned[t.type] -= t.required;
+  });
+
+  // Update arena
+  currentArena++;
+  
+  // Update arena title
+  document.querySelector('h2').textContent = ARENAS[currentArena].name;
+
+  // Add new troop type if available
+  if (nextArena.troops.length > 0) {
+    const newTroop = nextArena.troops[0].type;
+    if (!unlockedTroops.includes(newTroop)) {
+      unlockedTroops.push(newTroop);
+      troopTypes.push(newTroop);
+      troopOwned[newTroop] = 0;
+      deployedTroops[newTroop] = 0;
+      
+      // Add new troop upgrade option
+      const upgradeSection = document.querySelector('.upgrade-section');
+      const newUpgradeRow = document.createElement('div');
+      newUpgradeRow.className = 'upgrade-row';
+      newUpgradeRow.innerHTML = `
+        <div class="upgrade-label">
+          ${newTroop}
+          <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'New troop type from ${nextArena.name}')">
+        </div>
+        <button id="buy${newTroop}Btn">
+          100
+          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+        </button>
+        <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
+      `;
+      upgradeSection.appendChild(newUpgradeRow);
+    }
+  }
+
+  updateDisplay();
+  checkArenaUpgrade();
+});
+
+    // Call checkArenaUpgrade after updating display
+    function updateDisplay() {
+      trophiesSpan.textContent = trophies;
+      goldSpan.textContent = Math.floor(gold);
+      goldPerSecSpan.textContent = goldPerSec;
+      elixirCountSpan.textContent = elixirCollectors;
+      goblinCountSpan.textContent = goblins;
+      // Calculate current mine gold value
+      let bonus = 1 + goblins * 0.1;
+      let mineGoldValue = mineGoldBase * bonus;
+      mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
+      // Update troop controls
+      troopListDiv.innerHTML = '';
+      troopTypes.forEach(type => {
+        const div = document.createElement('div');
+        div.className = 'troop-controls';
+        div.innerHTML = `
+          <span>${type} (Owned: ${troopOwned[type]})</span>
+          <button onclick="changeTroop('${type}', -1)">-</button>
+          <span id="deployed_${type}">${deployedTroops[type]}</span>
+          <button onclick="changeTroop('${type}', 1)">+</button>
+        `;
+        troopListDiv.appendChild(div);
+      });
+      // Win chance calculation
+      let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+      let winChance = 50 + Math.floor(totalTroops / 10);
+      winChanceSpan.textContent = winChance;
+      // Enable/disable battle button
+      battleBtn.disabled = gold < 500 || battleInProgress; // <-- Disable if battle in progress
+      checkArenaUpgrade();
     }
   </script>
 </body>
