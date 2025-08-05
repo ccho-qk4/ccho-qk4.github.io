@@ -179,8 +179,41 @@ button:hover {
     // Mining gold
     mineGoldBtn.addEventListener('click', () => {
       let bonus = 1 + goblins * 0.05;
-      gold += mineGoldBase * bonus;
+      let value = mineGoldBase * bonus;
+      gold += value;
       updateDisplay();
+
+      // Floating gold text effect
+      const btnRect = mineGoldBtn.getBoundingClientRect();
+      const parentRect = document.body.getBoundingClientRect();
+
+      // Create the floating text element
+      const floatText = document.createElement('span');
+      floatText.textContent = `+${value.toFixed(2)}`;
+      floatText.style.position = 'absolute';
+      floatText.style.left = (btnRect.left - parentRect.left + Math.random() * btnRect.width * 0.6) + 'px';
+      floatText.style.top = (btnRect.top - parentRect.top + Math.random() * btnRect.height * 0.3) + 'px';
+      floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
+      floatText.style.fontSize = '1.2em';
+      floatText.style.fontWeight = 'bold';
+      floatText.style.color = '#ffe066';
+      floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
+      floatText.style.pointerEvents = 'none';
+      floatText.style.opacity = '1';
+      floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
+
+      document.body.appendChild(floatText);
+
+      // Trigger the animation (float up and fade out)
+      setTimeout(() => {
+        floatText.style.transform = `translateY(-48px) scale(1.2)`;
+        floatText.style.opacity = '0';
+      }, 10);
+
+      // Remove the element after animation
+      setTimeout(() => {
+        floatText.remove();
+      }, 1100);
     });
 
     // Battle logic
