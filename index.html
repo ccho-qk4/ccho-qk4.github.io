@@ -70,11 +70,15 @@ button:hover {
     </div>
   </div>
   <script>
-    // Prevent double-tap zoom on iOS/Safari
+    // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function(event) {
       const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
+      // Only prevent if not a button or input
+      if (
+        now - lastTouchEnd <= 300 &&
+        !(event.target.closest('button, input, [role="button"]'))
+      ) {
         event.preventDefault();
       }
       lastTouchEnd = now;
