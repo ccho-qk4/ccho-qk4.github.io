@@ -624,6 +624,8 @@ newUpgradeRow.innerHTML = `
       }, 0);
     }
 
+    window.showInfo = showInfo; // Make showInfo accessible to inline onclick
+
     // Add this to your JavaScript
 function checkArenaUpgrade() {
   const nextArena = ARENAS[currentArena + 1];
@@ -741,7 +743,8 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
         div.className = 'troop-controls';
         div.innerHTML = `
           <span>${type} (Owned: ${troopOwned[type]})</span>
-          <button onclick="changeTroop('${type}', -1)">-</button>          <span id="deployed_${type}">${deployedTroops[type]}</span>
+          <button onclick="changeTroop('${type}', -1)">-</button>
+          <span id="deployed_${type}">${deployedTroops[type]}</span>
           <button onclick="changeTroop('${type}', 1)">+</button>
         `;
         troopListDiv.appendChild(div);
