@@ -268,40 +268,52 @@ let currentArena = 0; // Index of current arena
 let unlockedTroops = ["Goblins"]; // Start with just Goblins
 
     function updateDisplay() {
-      trophiesSpan.textContent = trophies;
-      goldSpan.textContent = Math.floor(gold);
-      goldPerSecSpan.textContent = goldPerSec;
-      elixirCountSpan.textContent = elixirCollectors;
-      goblinCountSpan.textContent = goblins;
-      // Calculate current mine gold value
-      let bonus = 1 + goblins * 0.05;
-      let mineGoldValue = mineGoldBase * bonus;
-      mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
-      // Update troop controls
-      troopListDiv.innerHTML = '';
-      troopTypes.forEach(type => {
-        const div = document.createElement('div');
-        div.className = 'troop-controls';
-        div.innerHTML = `
-          <span>${type} (Owned: ${troopOwned[type]})</span>
-          <button onclick="changeTroop('${type}', -1)">-</button>
-          <span id="deployed_${type}">${deployedTroops[type]}</span>
-          <button onclick="changeTroop('${type}', 1)">+</button>
-        `;
-        troopListDiv.appendChild(div);
-      });
-      // Win chance calculation
-      let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-      let winChance = 50 + Math.floor(totalTroops / 10);
-      winChanceSpan.textContent = winChance;
-      // Enable/disable battle button
-      battleBtn.disabled = gold < 500 || battleInProgress; // <-- Disable if battle in progress
-      const skeletonCountSpan = document.getElementById('skeletonCount');
+  // Calculate goldPerSec first
+  goldPerSec = elixirCollectors * 1;  // Each collector gives 1 gold/sec
+
+  // Update display elements
+  trophiesSpan.textContent = trophies;
+  goldSpan.textContent = Math.floor(gold);
+  goldPerSecSpan.textContent = goldPerSec;
+  elixirCountSpan.textContent = elixirCollectors;
+  goblinCountSpan.textContent = goblins;
+
+  // Calculate current mine gold value
+  let bonus = 1 + goblins * 0.05;
+  let mineGoldValue = mineGoldBase * bonus;
+  mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
+
+  // Update troop controls
+  troopListDiv.innerHTML = '';
+  troopTypes.forEach(type => {
+    const div = document.createElement('div');
+    div.className = 'troop-controls';
+    div.innerHTML = `
+      <span>${type} (Owned: ${troopOwned[type]})</span>
+      <button onclick="changeTroop('${type}', -1)">-</button>
+      <span id="deployed_${type}">${deployedTroops[type]}</span>
+      <button onclick="changeTroop('${type}', 1)">+</button>
+    `;
+    troopListDiv.appendChild(div);
+  });
+
+  // Win chance calculation
+  let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+  let winChance = 50 + Math.floor(totalTroops / 10);
+  winChanceSpan.textContent = winChance;
+
+  // Enable/disable battle button
+  battleBtn.disabled = gold < 500 || battleInProgress;
+
+  // Update skeleton count if exists
+  const skeletonCountSpan = document.getElementById('skeletonCount');
   if (skeletonCountSpan) {
     skeletonCountSpan.textContent = skeletons;
   }
   criticalHitChance = skeletons * 0.1;
-    }
+
+  checkArenaUpgrade();
+}
 
     // Troop deployment controls
     window.changeTroop = function(type, delta) {
@@ -724,39 +736,6 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   updateDisplay();
   checkArenaUpgrade();
 });
-
-    // Call checkArenaUpgrade after updating display
-    function updateDisplay() {
-      trophiesSpan.textContent = trophies;
-      goldSpan.textContent = Math.floor(gold);
-      goldPerSecSpan.textContent = goldPerSec;
-      elixirCountSpan.textContent = elixirCollectors;
-      goblinCountSpan.textContent = goblins;
-      // Calculate current mine gold value
-      let bonus = 1 + goblins * 0.05;
-      let mineGoldValue = mineGoldBase * bonus;
-      mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
-      // Update troop controls
-      troopListDiv.innerHTML = '';
-      troopTypes.forEach(type => {
-        const div = document.createElement('div');
-        div.className = 'troop-controls';
-        div.innerHTML = `
-          <span>${type} (Owned: ${troopOwned[type]})</span>
-          <button onclick="changeTroop('${type}', -1)">-</button>
-          <span id="deployed_${type}">${deployedTroops[type]}</span>
-          <button onclick="changeTroop('${type}', 1)">+</button>
-        `;
-        troopListDiv.appendChild(div);
-      });
-      // Win chance calculation
-      let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-      let winChance = 50 + Math.floor(totalTroops / 10);
-      winChanceSpan.textContent = winChance;
-      // Enable/disable battle button
-      battleBtn.disabled = gold < 500 || battleInProgress; // <-- Disable if battle in progress
-      checkArenaUpgrade();
-    }
   </script>
 </body>
 </html>
