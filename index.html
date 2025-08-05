@@ -63,6 +63,29 @@ button:hover {
 }
     .troop-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .upgrade-section { background: #22304a; padding: 16px; border-radius: 8px; }
+    .upgrade-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.upgrade-label {
+  min-width: 120px;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+.upgrade-row button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1.1em;
+  padding: 8px 16px;
+}
+.upgrade-row img {
+  margin-left: 2px;
+}
   </style>
 </head>
 <body>
@@ -82,12 +105,20 @@ button:hover {
   </div>
   <div class="section upgrade-section">
     <h3>Troops & Upgrades</h3>
-    <div>
-      <button id="buyElixirBtn">Buy Elixir Collector (Cost: 50 gold)</button>
+    <div class="upgrade-row">
+      <div class="upgrade-label">Elixir Collector</div>
+      <button id="buyElixirBtn">
+        50
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
       <span>Elixir Collectors: <span id="elixirCount">0</span></span>
     </div>
-    <div>
-      <button id="buyGoblinBtn">Buy Goblins (Cost: 100 gold)</button>
+    <div class="upgrade-row">
+      <div class="upgrade-label">Goblins</div>
+      <button id="buyGoblinBtn">
+        100
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
       <span>Goblins: <span id="goblinCount">0</span></span>
     </div>
   </div>
@@ -303,10 +334,6 @@ button:hover {
         updateDisplay();
       });
     });
-
-    // Update button labels for new costs
-    buyElixirBtn.textContent = "Buy Elixir Collector (Cost: 50 gold)";
-    buyGoblinBtn.textContent = "Buy Goblins (Cost: 100 gold)";
 
     // Buy Elixir Collector
     buyElixirBtn.addEventListener('click', () => {
