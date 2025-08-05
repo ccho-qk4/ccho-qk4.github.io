@@ -86,6 +86,32 @@ button:hover {
 .upgrade-row img {
   margin-left: 2px;
 }
+.info-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-left: 8px;
+  cursor: pointer;
+  filter: brightness(1.2);
+  transition: filter 0.2s;
+}
+
+.info-icon:hover {
+  filter: brightness(1.5);
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  padding: 16px;
+  background: #22304a;
+  border: 3px solid #ffe066;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 4px 12px #0008;
+  max-width: 280px;
+  z-index: 100;
+}
   </style>
 </head>
 <body>
@@ -106,7 +132,10 @@ button:hover {
   <div class="section upgrade-section">
     <h3>Troops & Upgrades</h3>
     <div class="upgrade-row">
-      <div class="upgrade-label">Elixir Collector</div>
+      <div class="upgrade-label">
+        Elixir Collector
+        <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold generation by 1 gold/sec')">
+      </div>
       <button id="buyElixirBtn">
         50
         <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
@@ -114,7 +143,10 @@ button:hover {
       <span>Elixir Collectors: <span id="elixirCount">0</span></span>
     </div>
     <div class="upgrade-row">
-      <div class="upgrade-label">Goblins</div>
+      <div class="upgrade-label">
+        Goblins
+        <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold mined by 0.5')">
+      </div>
       <button id="buyGoblinBtn">
         100
         <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
@@ -395,6 +427,44 @@ button:hover {
     }, 1000);
 
     updateDisplay();
+
+    // Add this to your existing JavaScript
+    let activePopup = null;
+
+    function showInfo(button, description) {
+      // Remove any existing popup
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
+
+      // Create popup
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.textContent = description;
+      document.body.appendChild(popup);
+      activePopup = popup;
+
+      // Position popup near the button
+      const buttonRect = button.getBoundingClientRect();
+      popup.style.display = 'block';
+      popup.style.left = buttonRect.left + 'px';
+      popup.style.top = (buttonRect.bottom + 8) + 'px';
+
+      // Close popup when clicking outside
+      const closePopup = (e) => {
+        if (!popup.contains(e.target) && e.target !== button) {
+          popup.remove();
+          activePopup = null;
+          document.removeEventListener('click', closePopup);
+        }
+      };
+      
+      // Delay adding click listener to prevent immediate closure
+      setTimeout(() => {
+        document.addEventListener('click', closePopup);
+      }, 0);
+    }
   </script>
 </body>
 </html>
