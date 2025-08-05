@@ -129,6 +129,19 @@ button:hover {
   margin: 12px 0;
   line-height: 1.5;
 }
+
+/* Add this to your existing styles */
+.button-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.button-group button:last-child {
+  font-size: 0.9em;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #ffd700 0%, #ff9800 100%);
+}
   </style>
 </head>
 <body>
@@ -158,10 +171,17 @@ button:hover {
         Elixir Collector
         <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold generation by 1 gold/sec')">
       </div>
-      <button id="buyElixirBtn">
-        50
-        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-      </button>
+      <div class="button-group">
+        <button id="buyElixirBtn">
+          50
+          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+        </button>
+        <button id="buyElixirBtn10x">
+          500
+          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+          x10
+        </button>
+      </div>
       <span>Elixir Collectors: <span id="elixirCount">0</span></span>
     </div>
     <div class="upgrade-row">
@@ -169,10 +189,17 @@ button:hover {
         Goblins
         <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increases gold mined by 5%')">
       </div>
-      <button id="buyGoblinBtn">
-        100
-        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-      </button>
+      <div class="button-group">
+        <button id="buyGoblinBtn">
+          100
+          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+        </button>
+        <button id="buyGoblinBtn10x">
+          1000
+          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+          x10
+        </button>
+      </div>
       <span>Goblins: <span id="goblinCount">0</span></span>
     </div>
   </div>
@@ -493,6 +520,64 @@ let unlockedTroops = ["Goblins"]; // Start with just Goblins
       }
     });
 
+    // Buy 10x Elixir Collectors
+document.getElementById('buyElixirBtn10x').addEventListener('click', () => {
+  if (gold >= 500) {
+    gold -= 500;
+    elixirCollectors += 10;
+    goldPerSec = elixirCollectors * 1;
+    updateDisplay();
+    showFloatingCost(buyElixirBtn10x, 500);
+  }
+});
+
+// Buy 10x Goblins
+document.getElementById('buyGoblinBtn10x').addEventListener('click', () => {
+  if (gold >= 1000) {
+    gold -= 1000;
+    goblins += 10;
+    troopOwned.Goblins += 10;
+    updateDisplay();
+    showFloatingCost(buyGoblinBtn10x, 1000);
+  }
+});
+
+// Modify the buyTroop function to handle 10x purchases
+function buyTroop(troopType, cost, amount = 1) {
+  const totalCost = cost * amount;
+  if (gold >= totalCost) {
+    gold -= totalCost;
+    troopOwned[troopType] += amount;
+    if (troopType === 'Skeletons') {
+      skeletons += amount;
+    }
+    updateDisplay();
+    const btn = document.getElementById(`buy${troopType}${amount > 1 ? '10x' : ''}Btn`);
+    showFloatingCost(btn, totalCost);
+  }
+}
+
+// Update the new troop UI creation in upgradeArena to include 10x button
+// Modify the relevant part in the upgradeArena click handler:
+newUpgradeRow.innerHTML = `
+  <div class="upgrade-label">
+    ${newTroop}
+    <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, '${description}')">
+  </div>
+  <div class="button-group">
+    <button id="buy${newTroop}Btn" onclick="buyTroop('${newTroop}', ${cost})">
+      ${cost}
+      <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+    </button>
+    <button id="buy${newTroop}Btn10x" onclick="buyTroop('${newTroop}', ${cost}, 10)">
+      ${cost * 10}
+      <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      x10
+    </button>
+  </div>
+  <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
+`;
+
     // Passive gold generation
     setInterval(() => {
       gold += goldPerSec;
@@ -617,10 +702,17 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
           ${newTroop}
           <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, '${description}')">
         </div>
-        <button id="buy${newTroop}Btn" onclick="buyTroop('${newTroop}', ${cost})">
-          ${cost}
-          <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-        </button>
+        <div class="button-group">
+          <button id="buy${newTroop}Btn" onclick="buyTroop('${newTroop}', ${cost})">
+            ${cost}
+            <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+          </button>
+          <button id="buy${newTroop}Btn10x" onclick="buyTroop('${newTroop}', ${cost}, 10)">
+            ${cost * 10}
+            <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+            x10
+          </button>
+        </div>
         <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
       `;
       upgradeSection.appendChild(newUpgradeRow);
