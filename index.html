@@ -590,14 +590,6 @@ newUpgradeRow.innerHTML = `
   <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
 `;
 
-    // Passive gold generation
-    setInterval(() => {
-      if (!battleInProgress) {  // Only add gold if not in battle
-        gold += goldPerSec;
-        updateDisplay();
-      }
-    }, 1000);
-
     updateDisplay();
 
     // Add this to your existing JavaScript
@@ -738,6 +730,16 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   updateDisplay();
   checkArenaUpgrade();
 });
+
+// Add this after your initial game state declarations, right after your DOM elements
+const gameLoop = setInterval(() => {
+  if (!battleInProgress) {
+    gold += goldPerSec;
+    updateDisplay();
+  }
+}, 1000);
+
+// Make sure it's before your event listeners and other function definitions
   </script>
 </body>
 </html>
