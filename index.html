@@ -592,8 +592,10 @@ newUpgradeRow.innerHTML = `
 
     // Passive gold generation
     setInterval(() => {
-      gold += goldPerSec;
-      updateDisplay();
+      if (!battleInProgress) {  // Only add gold if not in battle
+        gold += goldPerSec;
+        updateDisplay();
+      }
     }, 1000);
 
     updateDisplay();
@@ -638,7 +640,7 @@ newUpgradeRow.innerHTML = `
 
     window.showInfo = showInfo; // Make showInfo accessible to inline onclick
 
-    // Add this to your JavaScript
+    // Fix checkArenaUpgrade function
 function checkArenaUpgrade() {
   const nextArena = ARENAS[currentArena + 1];
   if (!nextArena) return; // No more arenas
