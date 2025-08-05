@@ -335,6 +335,37 @@ button:hover {
       });
     });
 
+    // Utility function to show floating cost text for any upgrade button
+    function showFloatingCost(btn, amount) {
+      const btnRect = btn.getBoundingClientRect();
+      const parentRect = document.body.getBoundingClientRect();
+
+      const floatText = document.createElement('span');
+      floatText.innerHTML = `-${amount} <img src="img/coin.png" alt="coin" width="18" height="18" style="vertical-align:middle;">`;
+      floatText.style.position = 'absolute';
+      floatText.style.left = (btnRect.left - parentRect.left + btnRect.width/2 - 20 + Math.random()*20) + 'px';
+      floatText.style.top = (btnRect.top - parentRect.top + btnRect.height/2 - 10 + Math.random()*10) + 'px';
+      floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
+      floatText.style.fontSize = '1.1em';
+      floatText.style.fontWeight = 'bold';
+      floatText.style.color = '#e74c3c';
+      floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
+      floatText.style.pointerEvents = 'none';
+      floatText.style.opacity = '1';
+      floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
+
+      document.body.appendChild(floatText);
+
+      setTimeout(() => {
+        floatText.style.transform = `translateY(-36px) scale(1.1)`;
+        floatText.style.opacity = '0';
+      }, 10);
+
+      setTimeout(() => {
+        floatText.remove();
+      }, 1100);
+    }
+
     // Buy Elixir Collector
     buyElixirBtn.addEventListener('click', () => {
       if (gold >= 50) {
@@ -342,6 +373,7 @@ button:hover {
         elixirCollectors++;
         goldPerSec = elixirCollectors * 1;
         updateDisplay();
+        showFloatingCost(buyElixirBtn, 50);
       }
     });
 
@@ -352,6 +384,7 @@ button:hover {
         goblins++;
         troopOwned.Goblins++;
         updateDisplay();
+        showFloatingCost(buyGoblinBtn, 100);
       }
     });
 
