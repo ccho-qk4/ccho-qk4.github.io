@@ -351,7 +351,7 @@ let unlockedTroops = ["Goblins"]; // Start with just Goblins
       // Make button unclickable and show countdown
       battleBtn.disabled = true;
       let originalText = battleBtn.textContent;
-      let secondsLeft = 10;
+      let secondsLeft = 1;
       battleBtn.textContent = `Battling (${secondsLeft}s)`;
 
       // Create a flex container for battleBtn and progressBar if not already present
@@ -393,7 +393,7 @@ let unlockedTroops = ["Goblins"]; // Start with just Goblins
       flexDiv.appendChild(progressBar);
 
       let elapsed = 0;
-      const duration = 10; // seconds
+      const duration = 1; // seconds
       const interval = setInterval(() => {
         elapsed++;
         secondsLeft--;
