@@ -5,7 +5,14 @@
   <title>Clash Royale Idle Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    body { font-family: Arial, sans-serif; background: #2e3d53; color: #fff; margin: 0; padding: 24px; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #2e3d53; 
+      color: #fff; 
+      margin: 0; 
+      padding: 24px; 
+      touch-action: manipulation; /* Prevent double-tap zoom on most browsers */
+    }
     .section { margin-bottom: 24px; }
     button {
   margin: 4px;
@@ -63,6 +70,16 @@ button:hover {
     </div>
   </div>
   <script>
+    // Prevent double-tap zoom on iOS/Safari
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
     // Game state
     let trophies = 0;
     let gold = 0;
