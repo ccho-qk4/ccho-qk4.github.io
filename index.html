@@ -608,7 +608,7 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
       elixirCountSpan.textContent = elixirCollectors;
       goblinCountSpan.textContent = goblins;
       // Calculate current mine gold value
-      let bonus = 1 + goblins * 0.1;
+      let bonus = 1 + goblins * 0.05;
       let mineGoldValue = mineGoldBase * bonus;
       mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
       // Update troop controls
