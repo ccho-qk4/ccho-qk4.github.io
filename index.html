@@ -668,6 +668,7 @@ function checkArenaUpgrade() {
     trophiesSpan.style.color = '#fff';
   }
 }
+window.buyTroop = buyTroop;
 
 // Upgrade arena button click handler
 document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
@@ -699,8 +700,8 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
     if (!unlockedTroops.includes(newTroop)) {
       unlockedTroops.push(newTroop);
       troopTypes.push(newTroop);
-      troopOwned[newTroop] = 0;
-      deployedTroops[newTroop] = 0;
+      if (!troopOwned.hasOwnProperty(newTroop)) troopOwned[newTroop] = 0;
+      if (!deployedTroops.hasOwnProperty(newTroop)) deployedTroops[newTroop] = 0;
 
       // Add new troop upgrade UI to the shop
       const upgradeSection = document.querySelector('.upgrade-section');
@@ -738,8 +739,6 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   checkArenaUpgrade();
   });
 });
-
-window.buyTroop = buyTroop;
   </script>
 </body>
 </html>
