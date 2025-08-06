@@ -700,8 +700,8 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
     if (!unlockedTroops.includes(newTroop)) {
       unlockedTroops.push(newTroop);
       troopTypes.push(newTroop);
-      if (!troopOwned.hasOwnProperty(newTroop)) troopOwned[newTroop] = 0;
-      if (!deployedTroops.hasOwnProperty(newTroop)) deployedTroops[newTroop] = 0;
+      troopOwned[newTroop] = 0;
+      deployedTroops[newTroop] = 0;
 
       // Add new troop upgrade UI to the shop
       const upgradeSection = document.querySelector('.upgrade-section');
