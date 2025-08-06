@@ -701,6 +701,17 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   nextArena.troops.forEach(t => {
     troopOwned[t.type] -= t.required;
     if (troopOwned[t.type] < 0) troopOwned[t.type] = 0;
+    
+    // Also update individual counters
+    if (t.type === 'Goblins') {
+      goblins -= t.required;
+      if (goblins < 0) goblins = 0;
+    }
+    if (t.type === 'Skeletons') {
+      skeletons -= t.required;
+      if (skeletons < 0) skeletons = 0;
+    }
+    // Add more troop types as needed when you implement their individual counters
   });
 
   // Advance arena
