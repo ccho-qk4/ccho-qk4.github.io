@@ -507,40 +507,44 @@ const ARENAS = [
 ];
 
 // Move this OUTSIDE and BEFORE the DOMContentLoaded event listener
-function showInfo(button, description) {
-  // Remove any existing popup
-  if (activePopup) {
-    activePopup.remove();
-    activePopup = null;
+// Strategy System
+const strategies = {
+  aggressive: { 
+    name: "🗡️ Aggressive",
+    battleCost: 0.8, 
+    trophyGain: 1.2, 
+    troopLoss: 1.3 
+  },
+  balanced: { 
+    name: "⚖️ Balanced",
+    battleCost: 1.0, 
+    trophyGain: 1.0, 
+    troopLoss: 1.0 
+  },
+  defensive: { 
+    name: "🛡️ Defensive",
+    battleCost: 1.2, 
+    trophyGain: 0.8, 
+    troopLoss: 0.7 
   }
+};
 
-  // Create popup
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  popup.textContent = description;
-  document.body.appendChild(popup);
-  activePopup = popup;
-
-  // Position popup much higher above the button
-  const buttonRect = button.getBoundingClientRect();
-  popup.style.display = 'block';
-  popup.style.left = buttonRect.left + 'px';
-  popup.style.top = (buttonRect.top - 50) + 'px';
-
-  // Close popup when clicking outside
-  const closePopup = (e) => {
-    if (!popup.contains(e.target) && e.target !== button) {
-      popup.remove();
-      activePopup = null;
-      document.removeEventListener('click', closePopup);
-    }
-  };
+window.setStrategy = function(strategy) {
+  currentStrategy = strategy;
   
-  // Delay adding click listener to prevent immediate closure
-  setTimeout(() => {
-    document.addEventListener('click', closePopup);
-  }, 0);
-}
+  // Update visual feedback
+  document.querySelectorAll('.strategy-option').forEach(option => {
+    option.classList.remove('active');
+  });
+  document.querySelector(`[data-strategy="${strategy}"]`).classList.add('active');
+  
+  document.getElementById('currentStrategy').textContent = strategies[strategy].name;
+  
+  // Call updateDisplay if it exists (it will after DOM loads)
+  if (typeof updateDisplay === 'function') {
+    updateDisplay();
+  }
+};
 
 window.addEventListener('DOMContentLoaded', function() {
   // DOM elements
@@ -1196,72 +1200,6 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   checkArenaUpgrade();
   });
 });
-
-// Enhanced feedback system
-function enhanceButton(button, type) {
-  button.classList.add(type);
-  setTimeout(() => {
-    button.classList.remove(type);
-  }, type === 'level-up' ? 3000 : 600);
-}
-
-function showBigNumber(element, value, color = '#4CAF50') {
-  const bigText = document.createElement('div');
-  bigText.textContent = `+${value}`;
-  bigText.style.cssText = `
-    position: absolute;
-    font-size: 2.5em;
-    font-weight: bold;
-    color: ${color};
-    pointer-events: none;
-    z-index: 100;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    animation: bigNumberPop 2s ease-out forwards;
-  `;
-  
-  const rect = element.getBoundingClientRect();
-  bigText.style.left = (rect.left + rect.width/2 - 50) + 'px';
-  bigText.style.top = (rect.top - 30) + 'px';
-  
-  document.body.appendChild(bigText);
-  
-  setTimeout(() => bigText.remove(), 2000);
-}
-
-// Strategy System
-const strategies = {
-  aggressive: { 
-    name: "🗡️ Aggressive",
-    battleCost: 0.8, 
-    trophyGain: 1.2, 
-    troopLoss: 1.3 
-  },
-  balanced: { 
-    name: "⚖️ Balanced",
-    battleCost: 1.0, 
-    trophyGain: 1.0, 
-    troopLoss: 1.0 
-  },
-  defensive: { 
-    name: "🛡️ Defensive",
-    battleCost: 1.2, 
-    trophyGain: 0.8, 
-    troopLoss: 0.7 
-  }
-};
-
-window.setStrategy = function(strategy) {
-  currentStrategy = strategy;
-  
-  // Update visual feedback
-  document.querySelectorAll('.strategy-option').forEach(option => {
-    option.classList.remove('active');
-  });
-  document.querySelector(`[data-strategy="${strategy}"]`).classList.add('active');
-  
-  document.getElementById('currentStrategy').textContent = strategies[strategy].name;
-  updateDisplay();
-};
 
 // Initialize strategy display
 document.querySelector('[data-strategy="balanced"]').classList.add('active');
