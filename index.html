@@ -462,6 +462,14 @@ let battleInProgress = false;
 let activePopup = null;
 let currentStrategy = 'balanced';
 
+// Meta-progression system
+let metaUpgrades = {
+  goldenTouch: 0,
+  battleMaster: 0,
+  efficiency: 0,
+  trophyMagnet: 0
+};
+
 // Troop deployment
 let troopTypes = ["Goblins"];
 let troopOwned = { 
@@ -1269,14 +1277,6 @@ function checkArenaUpgradeInfinite() {
 
 // Call this function in the appropriate place in your existing code
 checkArenaUpgradeInfinite();
-
-// Meta-progression system
-let metaUpgrades = {
-  goldenTouch: 0,
-  battleMaster: 0,
-  efficiency: 0,
-  trophyMagnet: 0
-};
 
 // Load from localStorage
 const savedMeta = localStorage.getItem('clashIdleMeta');
