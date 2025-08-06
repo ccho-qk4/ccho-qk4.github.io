@@ -506,6 +506,42 @@ const ARENAS = [
   { name: "Hog Mountain", trophies: 3000, cost: 200000, troops: [{type: "Dart Goblin", required: 100}], unlocks: "Hog Riders" }
 ];
 
+// Move this OUTSIDE and BEFORE the DOMContentLoaded event listener
+function showInfo(button, description) {
+  // Remove any existing popup
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.textContent = description;
+  document.body.appendChild(popup);
+  activePopup = popup;
+
+  // Position popup much higher above the button
+  const buttonRect = button.getBoundingClientRect();
+  popup.style.display = 'block';
+  popup.style.left = buttonRect.left + 'px';
+  popup.style.top = (buttonRect.top - 50) + 'px';
+
+  // Close popup when clicking outside
+  const closePopup = (e) => {
+    if (!popup.contains(e.target) && e.target !== button) {
+      popup.remove();
+      activePopup = null;
+      document.removeEventListener('click', closePopup);
+    }
+  };
+  
+  // Delay adding click listener to prevent immediate closure
+  setTimeout(() => {
+    document.addEventListener('click', closePopup);
+  }, 0);
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   // DOM elements
   const trophiesSpan = document.getElementById('trophies');
@@ -1065,42 +1101,6 @@ function buyTroop(troopType, cost, amount = 1) {
 }
 
     // Add this to your existing JavaScript
-
-    function showInfo(button, description) {
-      // Remove any existing popup
-      if (activePopup) {
-        activePopup.remove();
-        activePopup = null;
-      }
-
-      // Create popup
-      const popup = document.createElement('div');
-      popup.className = 'popup';
-      popup.textContent = description;
-      document.body.appendChild(popup);
-      activePopup = popup;
-
-      // Position popup much higher above the button
-      const buttonRect = button.getBoundingClientRect();
-      popup.style.display = 'block';
-      popup.style.left = buttonRect.left + 'px';
-      popup.style.top = (buttonRect.top - 50) + 'px'; // Changed from +8 to -120 for much higher positioning
-
-      // Close popup when clicking outside
-      const closePopup = (e) => {
-        if (!popup.contains(e.target) && e.target !== button) {
-          popup.remove();
-          activePopup = null;
-          document.removeEventListener('click', closePopup);
-        }
-      };
-      
-      // Delay adding click listener to prevent immediate closure
-      setTimeout(() => {
-        document.addEventListener('click', closePopup);
-      }, 0);
-    }
-
     window.showInfo = showInfo; // Make showInfo accessible to inline onclick
 
     // Fix checkArenaUpgrade function
