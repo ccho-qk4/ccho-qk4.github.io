@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Clash Royale Idle Game</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.cdnfonts.com/css/supercell-magic" rel="stylesheet">
   <style>
@@ -430,23 +431,55 @@ let battleCost = 500;
     // Update battle button cost
     battleBtn.textContent = `Battle! (Cost: ${battleCost} gold)`;
 
-    // Update troop controls with sliders
-    troopListDiv.innerHTML = '';
-    troopTypes.forEach(type => {
-      const div = document.createElement('div');
-      div.className = 'troop-slider-container';
-      div.innerHTML = `
-        <span class="troop-info">${type} (${troopOwned[type]})</span>
-        <input type="range" class="troop-slider" 
-               min="0" max="${troopOwned[type]}" 
-               step="1"
-               value="${deployedTroops[type]}" 
-               oninput="updateDeployedTroops('${type}', this.value)"
-               onchange="updateDeployedTroops('${type}', this.value)">
-        <span class="troop-count">${deployedTroops[type]}</span>
-      `;
-      troopListDiv.appendChild(div);
-    });
+    // Update troop controls with sliders (only recreate if troop types changed)
+    if (troopListDiv.children.length !== troopTypes.length) {
+      troopListDiv.innerHTML = '';
+      troopTypes.forEach(type => {
+        const div = document.createElement('div');
+        div.className = 'troop-slider-container';
+        
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.className = 'troop-slider';
+        slider.min = '0';
+        slider.max = troopOwned[type];
+        slider.step = '1';
+        slider.value = deployedTroops[type];
+        
+        // Use event listeners instead of inline handlers for better performance
+        slider.addEventListener('input', (e) => {
+          deployedTroops[type] = parseInt(e.target.value);
+          div.querySelector('.troop-count').textContent = deployedTroops[type];
+          
+          // Update win chance
+          let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+          let winChance = Math.min(99, 50 + (totalTroops * 0.1));
+          winChanceSpan.textContent = winChance;
+        });
+        
+        div.innerHTML = `
+          <span class="troop-info">${type} (${troopOwned[type]})</span>
+          <span class="troop-count">${deployedTroops[type]}</span>
+        `;
+        
+        // Insert slider between info and count
+        div.insertBefore(slider, div.querySelector('.troop-count'));
+        troopListDiv.appendChild(div);
+      });
+    } else {
+      // Just update existing slider max values and troop counts
+      troopTypes.forEach((type, index) => {
+        const container = troopListDiv.children[index];
+        const slider = container.querySelector('.troop-slider');
+        const info = container.querySelector('.troop-info');
+        const count = container.querySelector('.troop-count');
+        
+        slider.max = troopOwned[type];
+        slider.value = deployedTroops[type];
+        info.textContent = `${type} (${troopOwned[type]})`;
+        count.textContent = deployedTroops[type];
+      });
+    }
 
     // Win chance calculation - 0.1% per troop deployed
     let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
@@ -823,61 +856,4 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   document.querySelector('h2').textContent = ARENAS[currentArena].name;
 
   // Unlock new troop if available
-  if (nextArena.unlocks) {
-    const newTroop = nextArena.unlocks;
-    if (!unlockedTroops.includes(newTroop)) {
-      unlockedTroops.push(newTroop);
-      troopTypes.push(newTroop);
-      troopOwned[newTroop] = 0;
-      deployedTroops[newTroop] = 0;
-
-      // Add new troop upgrade UI to the shop
-      const upgradeSection = document.querySelector('.upgrade-section');
-      const newUpgradeRow = document.createElement('div');
-      newUpgradeRow.className = 'upgrade-row';
-
-      // Define costs and descriptions for each troop
-      const troopData = {
-        'Skeletons': { cost: 150, description: 'Each Skeleton increases critical hit chance when mining gold by 0.1%' },
-        'Barbarians': { cost: 200, description: 'Each Barbarian increases gold earned per battle by 2%' },
-        'Wizards': { cost: 300, description: 'Each Wizard increases passive gold generation by 1%' },
-        'Valkyrie': { cost: 500, description: 'Each Valkyrie reduces all troop purchase costs by 1% (minimum 50%)' },
-        'Mini Pekka': { cost: 750, description: 'Each Mini Pekka gives 0.2% chance to instantly win battles' },
-        'Knights': { cost: 1000, description: 'Each Knight increases trophies gained from victories by 1' },
-        'Ice Golem': { cost: 1500, description: 'Each Ice Golem reduces trophies lost from defeats by 1' },
-        'Dart Goblin': { cost: 2000, description: 'Each Dart Goblin increases passive gold speed by 1%' },
-        'Hog Riders': { cost: 3000, description: 'Each Hog Rider gives 0.1% chance to find gold hoard after battle' }
-      };
-
-      const cost = troopData[newTroop].cost;
-      const description = troopData[newTroop].description;
-
-      newUpgradeRow.innerHTML = `
-        <div class="upgrade-label">
-          ${newTroop}
-          <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, '${description}')">
-        </div>
-        <div class="button-group">
-          <button id="buy${newTroop}Btn" onclick="buyTroop('${newTroop}', ${cost})">
-            ${cost}
-            <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-          </button>
-          <button id="buy${newTroop}Btn10x" onclick="buyTroop('${newTroop}', ${cost}, 10)">
-            ${cost * 10}
-            <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-            x10
-          </button>
-        </div>
-        <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
-      `;
-      upgradeSection.appendChild(newUpgradeRow);
-    }
-  }
-
-  updateDisplay();
-  checkArenaUpgrade();
-  });
-});
-  </script>
-</body>
-</html>
+  if
