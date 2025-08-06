@@ -203,6 +203,14 @@ button:hover {
     </div>
   </div>
   <script>
+const ARENAS = [
+  { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: null },
+  { name: "Bone Pit", trophies: 300, cost: 10000, troops: [{type: "Goblins", required: 100}], unlocks: "Skeletons" },
+  // ... more arenas ...
+];
+let currentArena = 0;
+let unlockedTroops = ["Goblins"];
+
 window.addEventListener('DOMContentLoaded', function() {
   // DOM elements (move these to the top!)
   const trophiesSpan = document.getElementById('trophies');
@@ -730,6 +738,8 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   checkArenaUpgrade();
   });
 });
+
+window.buyTroop = buyTroop;
   </script>
 </body>
 </html>
