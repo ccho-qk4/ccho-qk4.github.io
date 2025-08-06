@@ -639,54 +639,6 @@ window.addEventListener('DOMContentLoaded', function() {
     lastTouchEnd = now;
   }, false);
 
-  // Troop deployment
-  let troopTypes = ["Goblins"];
-  // Initialize troopOwned to include all possible troops
-  let troopOwned = { 
-  Goblins: 0, 
-  Skeletons: 0, 
-  Barbarians: 0, 
-  Wizards: 0, 
-  Valkyrie: 0, 
-  'Mini Pekka': 0, 
-  Knights: 0, 
-  'Ice Golem': 0, 
-  'Dart Goblin': 0, 
-  'Hog Riders': 0 
-};
-
-let deployedTroops = { 
-  Goblins: 0, 
-  Skeletons: 0, 
-  Barbarians: 0, 
-  Wizards: 0, 
-  Valkyrie: 0, 
-  'Mini Pekka': 0, 
-  Knights: 0, 
-  'Ice Golem': 0, 
-  'Dart Goblin': 0, 
-  'Hog Riders': 0 
-};
-
-  // Battle state
-  let battleInProgress = false; // <-- Add this flag
-
-  // Add to game state section
-  let skeletons = 0;
-  let criticalHitChance = 0;
-
-  // Initialize battle cost
-let battleCost = 500;
-
-// Add these to your existing game state variables
-let chestFindChance = 0;
-let defeatAvoidanceChance = 0;
-let instantWinChance = 0;
-let trophyGainBonus = 0;
-let trophyLossReduction = 0;
-let goldHoardChance = 0;
-let passiveGoldMultiplier = 1;
-
 // Game loop for passive gold generation
   setInterval(() => {
     if (!battleInProgress) {
