@@ -697,8 +697,11 @@ function buyTroop(troopType, cost, amount = 1) {
       countSpan.textContent = troopOwned[troopType];
     }
     
+    // Only show floating cost if button exists
     const btn = document.getElementById(`buy${troopType}${amount > 1 ? '10x' : ''}Btn`);
-    showFloatingCost(btn, totalCost);
+    if (btn) {
+      showFloatingCost(btn, totalCost);
+    }
   }
 }
 
