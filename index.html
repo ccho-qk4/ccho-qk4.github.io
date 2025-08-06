@@ -554,10 +554,10 @@ window.addEventListener('DOMContentLoaded', function() {
   }, false);
 
   // Game state
-  let trophies = 9999;
+  let trophies = 0;
   let gold = 0;
   let goldPerSec = 0;
-  let mineGoldBase = 5000;
+  let mineGoldBase = 5;
   let goblins = 0;
   let elixirCollectors = 0;
 
@@ -748,7 +748,7 @@ window.updateDeployedTroops = function(type, value) {
     // Make button unclickable and show countdown
     battleBtn.disabled = true;
     let originalText = battleBtn.textContent;
-    let secondsLeft = 1;
+    let secondsLeft = 10;
     battleBtn.textContent = `Battling (${secondsLeft}s)`;
 
     // Create a flex container for battleBtn and progressBar if not already present
@@ -790,7 +790,7 @@ window.updateDeployedTroops = function(type, value) {
     flexDiv.appendChild(progressBar);
 
     let elapsed = 0;
-    const duration = 1; // seconds
+    const duration = 10; // seconds
     const interval = setInterval(() => {
       elapsed++;
       secondsLeft--;
