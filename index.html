@@ -203,6 +203,7 @@ button:hover {
     </div>
   </div>
   <script>
+    let activePopup = null;
     // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function(event) {
@@ -600,7 +601,6 @@ newUpgradeRow.innerHTML = `
     updateDisplay();
 
     // Add this to your existing JavaScript
-    let activePopup = null;
 
     function showInfo(button, description) {
       // Remove any existing popup
