@@ -607,6 +607,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // Now you can safely use mineGoldBtn and others:
   mineGoldBtn.addEventListener('click', () => {
+    console.log('Mine gold clicked! Gold before:', gold);
     let bonus = 1 + goblins * 0.05;
     let value = mineGoldBase * bonus;
     
@@ -691,7 +692,7 @@ window.addEventListener('DOMContentLoaded', function() {
   setInterval(() => {
     if (!battleInProgress) {
       gold += goldPerSec;
-      goldSpan.textContent = Math.floor(gold);
+      updateDisplay();
     }
   }, 1000);
 
