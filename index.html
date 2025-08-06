@@ -624,11 +624,11 @@ function buyTroop(troopType, cost, amount = 1) {
       document.body.appendChild(popup);
       activePopup = popup;
 
-      // Position popup near the button
+      // Position popup much higher above the button
       const buttonRect = button.getBoundingClientRect();
       popup.style.display = 'block';
       popup.style.left = buttonRect.left + 'px';
-      popup.style.top = (buttonRect.bottom + 8) + 'px';
+      popup.style.top = (buttonRect.top - 50) + 'px'; // Changed from +8 to -120 for much higher positioning
 
       // Close popup when clicking outside
       const closePopup = (e) => {
