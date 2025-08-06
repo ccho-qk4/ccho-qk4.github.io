@@ -141,6 +141,56 @@ button:hover {
   padding: 8px 12px;
   background: linear-gradient(180deg, #ffd700 0%, #ff9800 100%);
 }
+.troop-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #1a2332;
+  border-radius: 8px;
+}
+
+.troop-slider {
+  flex: 1;
+  height: 8px;
+  background: #2e3d53;
+  border-radius: 4px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.troop-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ffe066;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #b8860b;
+}
+
+.troop-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #ffe066;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #b8860b;
+}
+
+.troop-info {
+  min-width: 120px;
+  font-weight: bold;
+}
+
+.troop-count {
+  min-width: 60px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffe066;
+}
   </style>
 </head>
 <body>
@@ -159,7 +209,9 @@ button:hover {
     <button id="battleBtn">Battle! (Cost: 500 gold)</button>
   </div>
   <div class="section">
-    <h3>Troops Deployed for Battle</h3>
+    <h3>Deploy Troops for Battle
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increase win percentage by 1% per troop deployed. If battle is lost, lose 30% of troops deployed.')" style="margin-left: 8px;">
+    </h3>
     <div id="troopList"></div>
     <p>Win Chance: <span id="winChance">50</span>%</p>
   </div>
@@ -348,7 +400,10 @@ let deployedTroops = {
   let skeletons = 0;
   let criticalHitChance = 0;
 
-  // Game loop for passive gold generation
+  // Initialize battle cost
+let battleCost = 500;
+
+// Game loop for passive gold generation
   setInterval(() => {
     if (!battleInProgress) {
       gold += goldPerSec;
@@ -372,27 +427,32 @@ let deployedTroops = {
     let mineGoldValue = mineGoldBase * bonus;
     mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
 
-    // Update troop controls
+    // Update battle button cost
+    battleBtn.textContent = `Battle! (Cost: ${battleCost} gold)`;
+
+    // Update troop controls with sliders
     troopListDiv.innerHTML = '';
     troopTypes.forEach(type => {
       const div = document.createElement('div');
-      div.className = 'troop-controls';
+      div.className = 'troop-slider-container';
       div.innerHTML = `
-        <span>${type} (Owned: ${troopOwned[type]})</span>
-        <button onclick="changeTroop('${type}', -1)">-</button>
-        <span id="deployed_${type}">${deployedTroops[type]}</span>
-        <button onclick="changeTroop('${type}', 1)">+</button>
+        <span class="troop-info">${type} (${troopOwned[type]})</span>
+        <input type="range" class="troop-slider" 
+               min="0" max="${troopOwned[type]}" 
+               value="${deployedTroops[type]}" 
+               onchange="updateDeployedTroops('${type}', this.value)">
+        <span class="troop-count">${deployedTroops[type]}</span>
       `;
       troopListDiv.appendChild(div);
     });
 
-    // Win chance calculation
+    // Win chance calculation - 1% per troop deployed
     let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-    let winChance = 50 + Math.floor(totalTroops / 10);
+    let winChance = Math.min(99, 50 + totalTroops); // Cap at 99%
     winChanceSpan.textContent = winChance;
 
     // Enable/disable battle button
-    battleBtn.disabled = gold < 500 || battleInProgress;
+    battleBtn.disabled = gold < battleCost || battleInProgress;
 
     // Update skeleton count if exists
     const skeletonCountSpan = document.getElementById('skeletonCount');
@@ -413,6 +473,12 @@ let deployedTroops = {
     }
     updateDisplay();
   };
+
+  // Add this new function for slider updates
+window.updateDeployedTroops = function(type, value) {
+  deployedTroops[type] = parseInt(value);
+  updateDisplay();
+};
 
   // Battle logic
   function showBattleProgress(callback) {
@@ -482,12 +548,12 @@ let deployedTroops = {
   }
 
   battleBtn.addEventListener('click', () => {
-    if (gold < 500 || battleInProgress) return; // <-- Prevent click if in progress
-    gold -= 500;
+    if (gold < battleCost || battleInProgress) return;
+    gold -= battleCost;
     battleBtn.disabled = true;
     showBattleProgress(() => {
       let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-      let winChance = 50 + Math.floor(totalTroops / 10);
+      let winChance = Math.min(99, 50 + totalTroops); // Cap at 99%
       let win = Math.random() * 100 < winChance;
       
       if (win) {
@@ -503,7 +569,35 @@ let deployedTroops = {
       } else {
         let trophiesLost = 20 + Math.floor(Math.random() * 8);
         trophies = Math.max(0, trophies - trophiesLost);
-        alert(`Defeat! You lost ${trophiesLost} trophies.`);
+        
+        // Lose 30% of deployed troops on defeat
+        let troopsLostMessage = "";
+        troopTypes.forEach(type => {
+          if (deployedTroops[type] > 0) {
+            const troopsLost = Math.ceil(deployedTroops[type] * 0.3);
+            troopOwned[type] = Math.max(0, troopOwned[type] - troopsLost);
+            deployedTroops[type] = Math.max(0, deployedTroops[type] - troopsLost);
+            
+            // Update individual counters
+            if (type === 'Goblins') {
+              goblins = Math.max(0, goblins - troopsLost);
+            }
+            if (type === 'Skeletons') {
+              skeletons = Math.max(0, skeletons - troopsLost);
+            }
+            
+            if (troopsLost > 0) {
+              troopsLostMessage += `${troopsLost} ${type}, `;
+            }
+          }
+        });
+        
+        if (troopsLostMessage) {
+          troopsLostMessage = troopsLostMessage.slice(0, -2); // Remove last comma
+          alert(`Defeat! You lost ${trophiesLost} trophies and ${troopsLostMessage}.`);
+        } else {
+          alert(`Defeat! You lost ${trophiesLost} trophies.`);
+        }
       }
       
       updateDisplay();
@@ -716,6 +810,9 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
 
   // Advance arena
   currentArena++;
+
+  // Update battle cost when arena changes (add this to your upgrade arena handler)
+  battleCost = 500 + (currentArena * 200);
 
   // Update arena title
   document.querySelector('h2').textContent = ARENAS[currentArena].name;
