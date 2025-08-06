@@ -440,6 +440,67 @@ button.success {
     </div>
   </div>
 </div>
+  <div class="section upgrade-section">
+  <h3>🛒 Shop</h3>
+  
+  <!-- Auto Miner -->
+  <div class="upgrade-row">
+    <div class="upgrade-label">
+      Auto Miner
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Automatically mines gold every 5 seconds. Each upgrade increases mining speed and amount!')">
+    </div>
+    <div class="button-group">
+      <button id="buyAutoMinerBtn">
+        10,000
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
+    </div>
+    <span>Level: <span id="autoMinerLevel">0</span> | Next mine in: <span id="autoMinerTimer">-</span>s</span>
+  </div>
+
+  <!-- Chests -->
+  <div class="upgrade-row">
+    <div class="upgrade-label">
+      Silver Chest
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Contains 8-20 random troops from your current arena!')">
+    </div>
+    <div class="button-group">
+      <button id="buySilverChestBtn">
+        1,000
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
+    </div>
+    <span>Contains 8-20 troops</span>
+  </div>
+
+  <div class="upgrade-row">
+    <div class="upgrade-label">
+      Gold Chest
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Contains 21-40 random troops from your current arena!')">
+    </div>
+    <div class="button-group">
+      <button id="buyGoldChestBtn">
+        2,500
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
+    </div>
+    <span>Contains 21-40 troops</span>
+  </div>
+
+  <div class="upgrade-row">
+    <div class="upgrade-label">
+      Magical Chest
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Contains 41-80 random troops from your current arena!')">
+    </div>
+    <div class="button-group">
+      <button id="buyMagicalChestBtn">
+        7,500
+        <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+      </button>
+    </div>
+    <span>Contains 41-80 troops</span>
+  </div>
+</div>
   <script>
 // Move these to the TOP of your script, before DOMContentLoaded
 let trophies = 0;
@@ -461,6 +522,11 @@ let passiveGoldMultiplier = 1;
 let battleInProgress = false;
 let activePopup = null;
 let currentStrategy = 'balanced';
+
+// Shop system
+let autoMinerLevel = 0;
+let autoMinerTimer = 0;
+let autoMinerActive = false;
 
 // Meta-progression system
 let metaUpgrades = {
@@ -692,6 +758,7 @@ window.addEventListener('DOMContentLoaded', function() {
   setInterval(() => {
     if (!battleInProgress) {
       gold += goldPerSec;
+      updateAutoMiner();
       updateDisplay();
     }
   }, 1000);
@@ -788,6 +855,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     criticalHitChance = skeletons * 0.2; // Updated to 0.2% per skeleton
 
+    updateShopDisplay();
     checkArenaUpgrade();
   }
 
@@ -1391,5 +1459,176 @@ function displayTroopBonuses() {
   // You can display these bonuses somewhere in your UI if desired
   return bonusText;
 }
+
+// Auto Miner System
+function updateAutoMiner() {
+  if (autoMinerLevel > 0) {
+    autoMinerActive = true;
+    if (autoMinerTimer <= 0) {
+      // Mine gold automatically
+      let baseAmount = mineGoldBase * (1 + goblins * 0.05);
+      let autoMinerBonus = 1 + (autoMinerLevel * 0.2); // +20% per level
+      let autoMinedGold = baseAmount * autoMinerBonus;
+      
+      // Check for critical hit (same chance as manual mining)
+      let isCritical = Math.random() * 100 < criticalHitChance;
+      if (isCritical) {
+        autoMinedGold *= 2;
+      }
+      
+      gold += autoMinedGold;
+      
+      // Show floating text
+      showAutoMinerGold(autoMinedGold, isCritical);
+      
+      // Reset timer (5 seconds base, reduced by 0.2s per level)
+      autoMinerTimer = Math.max(1, 5 - (autoMinerLevel * 0.2));
+      
+      updateDisplay();
+    } else {
+      autoMinerTimer -= 1;
+    }
+  }
+  
+  // Update timer display
+  const timerSpan = document.getElementById('autoMinerTimer');
+  if (timerSpan) {
+    timerSpan.textContent = autoMinerActive ? autoMinerTimer.toFixed(1) : '-';
+  }
+}
+
+function showAutoMinerGold(amount, isCritical) {
+  const mineBtn = document.getElementById('mineGoldBtn');
+  const btnRect = mineBtn.getBoundingClientRect();
+  
+  const floatText = document.createElement('span');
+  floatText.textContent = `⚙️ +${amount.toFixed(2)}${isCritical ? ' CRIT!' : ''}`;
+  floatText.style.cssText = `
+    position: absolute;
+    left: ${btnRect.right + 10}px;
+    top: ${btnRect.top}px;
+    font-family: 'Supercell Magic', Arial, sans-serif;
+    font-size: ${isCritical ? '1.4em' : '1.1em'};
+    font-weight: bold;
+    color: ${isCritical ? '#ff4444' : '#4CAF50'};
+    text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+    opacity: 1;
+    transition: transform 1s ease-out, opacity 1s;
+    z-index: 999;
+  `;
+
+  document.body.appendChild(floatText);
+
+  setTimeout(() => {
+    floatText.style.transform = `translateY(-30px) scale(${isCritical ? '1.3' : '1.1'})`;
+    floatText.style.opacity = '0';
+  }, 10);
+
+  setTimeout(() => floatText.remove(), 1000);
+}
+
+// Chest Opening System
+function openChest(chestType) {
+  let minTroops, maxTroops, cost;
+  
+  switch(chestType) {
+    case 'silver':
+      minTroops = 8;
+      maxTroops = 20;
+      cost = 1000;
+      break;
+    case 'gold':
+      minTroops = 21;
+      maxTroops = 40;
+      cost = 2500;
+      break;
+    case 'magical':
+      minTroops = 41;
+      maxTroops = 80;
+      cost = 7500;
+      break;
+  }
+  
+  if (gold < cost) return;
+  
+  gold -= cost;
+  
+  // Get available troops for current arena
+  const availableTroops = unlockedTroops.slice(); // Copy array
+  
+  // Generate random troops
+  const troopsToGive = Math.floor(Math.random() * (maxTroops - minTroops + 1)) + minTroops;
+  let troopsReceived = {};
+  
+  for (let i = 0; i < troopsToGive; i++) {
+    const randomTroop = availableTroops[Math.floor(Math.random() * availableTroops.length)];
+    troopsReceived[randomTroop] = (troopsReceived[randomTroop] || 0) + 1;
+    troopOwned[randomTroop]++;
+    
+    // Update individual counters
+    if (randomTroop === 'Goblins') goblins++;
+    if (randomTroop === 'Skeletons') skeletons++;
+  }
+  
+  // Show results
+  let resultMessage = `${chestType.toUpperCase()} CHEST OPENED!\nYou received:\n`;
+  Object.entries(troopsReceived).forEach(([troop, count]) => {
+    resultMessage += `${count} ${troop}\n`;
+  });
+  
+  alert(resultMessage);
+  
+  // Show floating cost
+  const btn = document.getElementById(`buy${chestType.charAt(0).toUpperCase() + chestType.slice(1)}ChestBtn`);
+  showFloatingCost(btn, cost);
+  
+  updateDisplay();
+}
+
+function updateShopDisplay() {
+  // Update Auto Miner button
+  const autoMinerBtn = document.getElementById('buyAutoMinerBtn');
+  const autoMinerLevelSpan = document.getElementById('autoMinerLevel');
+  
+  if (autoMinerBtn && autoMinerLevelSpan) {
+    const cost = Math.floor(10000 * Math.pow(1.5, autoMinerLevel));
+    autoMinerBtn.innerHTML = `
+      ${cost.toLocaleString()}
+      <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
+    `;
+    autoMinerLevelSpan.textContent = autoMinerLevel;
+  }
+}
+
+// Shop Event Listeners
+
+// Auto Miner
+document.getElementById('buyAutoMinerBtn').addEventListener('click', () => {
+  const cost = Math.floor(10000 * Math.pow(1.5, autoMinerLevel));
+  if (gold >= cost) {
+    gold -= cost;
+    autoMinerLevel++;
+    autoMinerTimer = Math.max(1, 5 - (autoMinerLevel * 0.2)); // Start timer
+    showFloatingCost(document.getElementById('buyAutoMinerBtn'), cost);
+    updateDisplay();
+    updateShopDisplay();
+  }
+});
+
+// Silver Chest
+document.getElementById('buySilverChestBtn').addEventListener('click', () => {
+  openChest('silver');
+});
+
+// Gold Chest
+document.getElementById('buyGoldChestBtn').addEventListener('click', () => {
+  openChest('gold');
+});
+
+// Magical Chest
+document.getElementById('buyMagicalChestBtn').addEventListener('click', () => {
+  openChest('magical');
+});
 </script>
 </body>
