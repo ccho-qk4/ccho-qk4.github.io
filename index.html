@@ -570,29 +570,6 @@ function buyTroop(troopType, cost, amount = 1) {
   }
 }
 
-// Update the new troop UI creation in upgradeArena to include 10x button
-// Modify the relevant part in the upgradeArena click handler:
-newUpgradeRow.innerHTML = `
-  <div class="upgrade-label">
-    ${newTroop}
-    <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, '${description}')">
-  </div>
-  <div class="button-group">
-    <button id="buy${newTroop}Btn" onclick="buyTroop('${newTroop}', ${cost})">
-      ${cost}
-      <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-    </button>
-    <button id="buy${newTroop}Btn10x" onclick="buyTroop('${newTroop}', ${cost}, 10)">
-      ${cost * 10}
-      <img src="img/coin.png" alt="coin" width="20" height="20" style="vertical-align:middle;">
-      x10
-    </button>
-  </div>
-  <span>${newTroop}: <span id="${newTroop.toLowerCase()}Count">0</span></span>
-`;
-
-    updateDisplay();
-
     // Add this to your existing JavaScript
 
     function showInfo(button, description) {
