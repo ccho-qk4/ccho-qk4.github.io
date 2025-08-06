@@ -204,62 +204,76 @@ button:hover {
   </div>
   <script>
 window.addEventListener('DOMContentLoaded', function() {
-  // Mining gold
-    mineGoldBtn.addEventListener('click', () => {
-      let bonus = 1 + goblins * 0.05;
-      let value = mineGoldBase * bonus;
-      
-      // Check for critical hit
-      if (Math.random() * 100 < criticalHitChance) {
-        value *= 2;
-        // Show critical hit text
-        const btnRect = mineGoldBtn.getBoundingClientRect();
-        const critText = document.createElement('span');
-        critText.textContent = 'CRITICAL!';
-        critText.style.position = 'absolute';
-        critText.style.left = btnRect.left + 'px';
-        critText.style.top = (btnRect.top - 20) + 'px';
-        critText.style.color = '#ff4444';
-        critText.style.fontWeight = 'bold';
-        document.body.appendChild(critText);
-        setTimeout(() => critText.remove(), 1000);
-      }
-      
-      gold += value;
-      updateDisplay();
+  // DOM elements (move these to the top!)
+  const trophiesSpan = document.getElementById('trophies');
+  const goldSpan = document.getElementById('gold');
+  const goldPerSecSpan = document.getElementById('goldPerSec');
+  const mineGoldBtn = document.getElementById('mineGoldBtn');
+  const battleBtn = document.getElementById('battleBtn');
+  const winChanceSpan = document.getElementById('winChance');
+  const troopListDiv = document.getElementById('troopList');
+  const buyElixirBtn = document.getElementById('buyElixirBtn');
+  const elixirCountSpan = document.getElementById('elixirCount');
+  const buyGoblinBtn = document.getElementById('buyGoblinBtn');
+  const goblinCountSpan = document.getElementById('goblinCount');
+  // ... any other DOM elements ...
 
-      // Floating gold text effect
+  // Now you can safely use mineGoldBtn and others:
+  mineGoldBtn.addEventListener('click', () => {
+    let bonus = 1 + goblins * 0.05;
+    let value = mineGoldBase * bonus;
+    
+    // Check for critical hit
+    if (Math.random() * 100 < criticalHitChance) {
+      value *= 2;
+      // Show critical hit text
       const btnRect = mineGoldBtn.getBoundingClientRect();
-      const parentRect = document.body.getBoundingClientRect();
+      const critText = document.createElement('span');
+      critText.textContent = 'CRITICAL!';
+      critText.style.position = 'absolute';
+      critText.style.left = btnRect.left + 'px';
+      critText.style.top = (btnRect.top - 20) + 'px';
+      critText.style.color = '#ff4444';
+      critText.style.fontWeight = 'bold';
+      document.body.appendChild(critText);
+      setTimeout(() => critText.remove(), 1000);
+    }
+    
+    gold += value;
+    updateDisplay();
 
-      // Create the floating text element
-      const floatText = document.createElement('span');
-      floatText.textContent = `+${value.toFixed(2)}`;
-      floatText.style.position = 'absolute';
-      floatText.style.left = (btnRect.left - parentRect.left + Math.random() * btnRect.width * 0.6) + 'px';
-      floatText.style.top = (btnRect.top - parentRect.top + Math.random() * btnRect.height * 0.3) + 'px';
-      floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
-      floatText.style.fontSize = '1.2em';
-      floatText.style.fontWeight = 'bold';
-      floatText.style.color = '#ffe066';
-      floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
-      floatText.style.pointerEvents = 'none';
-      floatText.style.opacity = '1';
-      floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
+    // Floating gold text effect
+    const btnRect = mineGoldBtn.getBoundingClientRect();
+    const parentRect = document.body.getBoundingClientRect();
 
-      document.body.appendChild(floatText);
+    // Create the floating text element
+    const floatText = document.createElement('span');
+    floatText.textContent = `+${value.toFixed(2)}`;
+    floatText.style.position = 'absolute';
+    floatText.style.left = (btnRect.left - parentRect.left + Math.random() * btnRect.width * 0.6) + 'px';
+    floatText.style.top = (btnRect.top - parentRect.top + Math.random() * btnRect.height * 0.3) + 'px';
+    floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
+    floatText.style.fontSize = '1.2em';
+    floatText.style.fontWeight = 'bold';
+    floatText.style.color = '#ffe066';
+    floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
+    floatText.style.pointerEvents = 'none';
+    floatText.style.opacity = '1';
+    floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
 
-      // Trigger the animation (float up and fade out)
-      setTimeout(() => {
-        floatText.style.transform = `translateY(-48px) scale(1.2)`;
-        floatText.style.opacity = '0';
-      }, 10);
+    document.body.appendChild(floatText);
 
-      // Remove the element after animation
-      setTimeout(() => {
-        floatText.remove();
-      }, 1100);
-    });
+    // Trigger the animation (float up and fade out)
+    setTimeout(() => {
+      floatText.style.transform = `translateY(-48px) scale(1.2)`;
+      floatText.style.opacity = '0';
+    }, 10);
+
+    // Remove the element after animation
+    setTimeout(() => {
+      floatText.remove();
+    }, 1100);
+  });
   let activePopup = null;
   // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
   let lastTouchEnd = 0;
@@ -302,35 +316,6 @@ window.addEventListener('DOMContentLoaded', function() {
       goldSpan.textContent = Math.floor(gold);
     }
   }, 1000);
-
-  // DOM elements
-  const trophiesSpan = document.getElementById('trophies');
-  const goldSpan = document.getElementById('gold');
-  const goldPerSecSpan = document.getElementById('goldPerSec');
-  const mineGoldBtn = document.getElementById('mineGoldBtn');
-  const battleBtn = document.getElementById('battleBtn');
-  const winChanceSpan = document.getElementById('winChance');
-  const troopListDiv = document.getElementById('troopList');
-  const buyElixirBtn = document.getElementById('buyElixirBtn');
-  const elixirCountSpan = document.getElementById('elixirCount');
-  const buyGoblinBtn = document.getElementById('buyGoblinBtn');
-  const goblinCountSpan = document.getElementById('goblinCount');
-
-  const ARENAS = [
-    { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: "Goblins" },
-    { name: "Bone Pit", trophies: 300, cost: 10000, troops: [{ type: "Goblins", required: 100 }], unlocks: "Skeletons" },
-    { name: "Barbarian Bowl", trophies: 600, cost: 15000, troops: [{ type: "Skeletons", required: 100 }], unlocks: "Barbarians" },
-    { name: "Spell Valley", trophies: 1000, cost: 20000, troops: [{ type: "Barbarians", required: 100 }], unlocks: "Wizards" },
-    { name: "Builder's Workshop", trophies: 1300, cost: 25000, troops: [{ type: "Wizards", required: 100 }], unlocks: "Valkyrie" },
-    { name: "Pekka's Playhouse", trophies: 1600, cost: 30000, troops: [{ type: "Valkyrie", required: 100 }], unlocks: "Mini Pekka" },
-    { name: "Royal Arena", trophies: 2000, cost: 35000, troops: [{ type: "Mini Pekka", required: 100 }], unlocks: "Knights" },
-    { name: "Frozen Peak", trophies: 2300, cost: 40000, troops: [{ type: "Knights", required: 100 }], unlocks: "Ice Golem" },
-    { name: "Jungle Arena", trophies: 2600, cost: 45000, troops: [{ type: "Ice Golem", required: 100 }], unlocks: "Dart Goblin" },
-    { name: "Hog Mountain", trophies: 3000, cost: 50000, troops: [{ type: "Dart Goblin", required: 100 }], unlocks: "Hog Riders" }
-  ];
-
-  let currentArena = 0; // Index of current arena
-  let unlockedTroops = ["Goblins"]; // Start with just Goblins
 
   function updateDisplay() {
     // Calculate goldPerSec first
@@ -380,171 +365,167 @@ window.addEventListener('DOMContentLoaded', function() {
     checkArenaUpgrade();
   }
 
-  // ...existing code (all your other functions and event listeners)...
+  // Troop deployment controls
+  window.changeTroop = function(type, delta) {
+    if (delta === 1 && deployedTroops[type] < troopOwned[type]) {
+      deployedTroops[type]++;
+    } else if (delta === -1 && deployedTroops[type] > 0) {
+      deployedTroops[type]--;
+    }
+    updateDisplay();
+  };
 
-});
+  // Battle logic
+  function showBattleProgress(callback) {
+    battleInProgress = true; // <-- Set flag
+    updateDisplay();         // <-- Update button state
 
-    // Troop deployment controls
-    window.changeTroop = function(type, delta) {
-      if (delta === 1 && deployedTroops[type] < troopOwned[type]) {
-        deployedTroops[type]++;
-      } else if (delta === -1 && deployedTroops[type] > 0) {
-        deployedTroops[type]--;
-      }
-      updateDisplay();
-    };
+    // Make button unclickable and show countdown
+    battleBtn.disabled = true;
+    let originalText = battleBtn.textContent;
+    let secondsLeft = 1;
+    battleBtn.textContent = `Battling (${secondsLeft}s)`;
 
-    // Battle logic
-    function showBattleProgress(callback) {
-      battleInProgress = true; // <-- Set flag
-      updateDisplay();         // <-- Update button state
+    // Create a flex container for battleBtn and progressBar if not already present
+    if (!battleBtn.parentNode.classList.contains('battle-flex')) {
+      const flexDiv = document.createElement('div');
+      flexDiv.className = 'battle-flex';
+      flexDiv.style.display = 'flex';
+      flexDiv.style.alignItems = 'center';
+      // Move battleBtn into flexDiv
+      battleBtn.parentNode.insertBefore(flexDiv, battleBtn);
+      flexDiv.appendChild(battleBtn);
+    }
+    const flexDiv = battleBtn.parentNode;
 
-      // Make button unclickable and show countdown
-      battleBtn.disabled = true;
-      let originalText = battleBtn.textContent;
-      let secondsLeft = 1;
+    // Remove any existing progress bar
+    const oldBar = document.getElementById('battleProgressBar');
+    if (oldBar) oldBar.remove();
+
+    // Create progress bar with same height as button, width 120px
+    const progressBar = document.createElement('div');
+    progressBar.id = 'battleProgressBar';
+    progressBar.style.width = '120px';
+    progressBar.style.height = `${battleBtn.offsetHeight}px`;
+    progressBar.style.background = '#22304a';
+    progressBar.style.borderRadius = '8px';
+    progressBar.style.marginLeft = '12px';
+    progressBar.style.position = 'relative';
+    progressBar.style.flexShrink = '0';
+
+    const fill = document.createElement('div');
+    fill.style.height = '100%';
+    fill.style.width = '0%';
+    fill.style.background = '#4caf50';
+    fill.style.borderRadius = '8px';
+    fill.style.transition = 'width 0.2s linear';
+    progressBar.appendChild(fill);
+
+    // Insert progress bar to the right of the button
+    flexDiv.appendChild(progressBar);
+
+    let elapsed = 0;
+    const duration = 1; // seconds
+    const interval = setInterval(() => {
+      elapsed++;
+      secondsLeft--;
+      fill.style.width = `${(elapsed / duration) * 100}%`;
       battleBtn.textContent = `Battling (${secondsLeft}s)`;
-
-      // Create a flex container for battleBtn and progressBar if not already present
-      if (!battleBtn.parentNode.classList.contains('battle-flex')) {
-        const flexDiv = document.createElement('div');
-        flexDiv.className = 'battle-flex';
-        flexDiv.style.display = 'flex';
-        flexDiv.style.alignItems = 'center';
-        // Move battleBtn into flexDiv
-        battleBtn.parentNode.insertBefore(flexDiv, battleBtn);
-        flexDiv.appendChild(battleBtn);
+      if (elapsed >= duration) {
+        clearInterval(interval);
+        progressBar.remove();
+        battleBtn.textContent = originalText;
+        battleInProgress = false; // <-- Reset flag
+        updateDisplay();          // <-- Update button state
+        callback();
       }
-      const flexDiv = battleBtn.parentNode;
+    }, 1000);
+  }
 
-      // Remove any existing progress bar
-      const oldBar = document.getElementById('battleProgressBar');
-      if (oldBar) oldBar.remove();
-
-      // Create progress bar with same height as button, width 120px
-      const progressBar = document.createElement('div');
-      progressBar.id = 'battleProgressBar';
-      progressBar.style.width = '120px';
-      progressBar.style.height = `${battleBtn.offsetHeight}px`;
-      progressBar.style.background = '#22304a';
-      progressBar.style.borderRadius = '8px';
-      progressBar.style.marginLeft = '12px';
-      progressBar.style.position = 'relative';
-      progressBar.style.flexShrink = '0';
-
-      const fill = document.createElement('div');
-      fill.style.height = '100%';
-      fill.style.width = '0%';
-      fill.style.background = '#4caf50';
-      fill.style.borderRadius = '8px';
-      fill.style.transition = 'width 0.2s linear';
-      progressBar.appendChild(fill);
-
-      // Insert progress bar to the right of the button
-      flexDiv.appendChild(progressBar);
-
-      let elapsed = 0;
-      const duration = 1; // seconds
-      const interval = setInterval(() => {
-        elapsed++;
-        secondsLeft--;
-        fill.style.width = `${(elapsed / duration) * 100}%`;
-        battleBtn.textContent = `Battling (${secondsLeft}s)`;
-        if (elapsed >= duration) {
-          clearInterval(interval);
-          progressBar.remove();
-          battleBtn.textContent = originalText;
-          battleInProgress = false; // <-- Reset flag
-          updateDisplay();          // <-- Update button state
-          callback();
-        }
-      }, 1000);
-    }
-
-    battleBtn.addEventListener('click', () => {
-      if (gold < 500 || battleInProgress) return; // <-- Prevent click if in progress
-      gold -= 500;
-      battleBtn.disabled = true;
-      showBattleProgress(() => {
-        let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-        let winChance = 50 + Math.floor(totalTroops / 10);
-        let win = Math.random() * 100 < winChance;
-        
-        if (win) {
-          let trophiesWon = 26 + Math.floor(Math.random() * 8);
-          // Cap trophies at next arena threshold if requirements aren't met
-          const nextArena = ARENAS[currentArena + 1];
-          if (nextArena && trophies + trophiesWon > nextArena.trophies) {
-            trophies = nextArena.trophies;
-          } else {
-            trophies += trophiesWon;
-          }
-          alert(`Victory! You won ${trophiesWon} trophies.`);
+  battleBtn.addEventListener('click', () => {
+    if (gold < 500 || battleInProgress) return; // <-- Prevent click if in progress
+    gold -= 500;
+    battleBtn.disabled = true;
+    showBattleProgress(() => {
+      let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
+      let winChance = 50 + Math.floor(totalTroops / 10);
+      let win = Math.random() * 100 < winChance;
+      
+      if (win) {
+        let trophiesWon = 26 + Math.floor(Math.random() * 8);
+        // Cap trophies at next arena threshold if requirements aren't met
+        const nextArena = ARENAS[currentArena + 1];
+        if (nextArena && trophies + trophiesWon > nextArena.trophies) {
+          trophies = nextArena.trophies;
         } else {
-          let trophiesLost = 20 + Math.floor(Math.random() * 8);
-          trophies = Math.max(0, trophies - trophiesLost);
-          alert(`Defeat! You lost ${trophiesLost} trophies.`);
+          trophies += trophiesWon;
         }
-        
-        updateDisplay();
-        checkArenaUpgrade();
-      });
+        alert(`Victory! You won ${trophiesWon} trophies.`);
+      } else {
+        let trophiesLost = 20 + Math.floor(Math.random() * 8);
+        trophies = Math.max(0, trophies - trophiesLost);
+        alert(`Defeat! You lost ${trophiesLost} trophies.`);
+      }
+      
+      updateDisplay();
+      checkArenaUpgrade();
     });
+  });
 
-    // Utility function to show floating cost text for any upgrade button
-    function showFloatingCost(btn, amount) {
-      const btnRect = btn.getBoundingClientRect();
-      const parentRect = document.body.getBoundingClientRect();
+  // Utility function to show floating cost text for any upgrade button
+  function showFloatingCost(btn, amount) {
+    const btnRect = btn.getBoundingClientRect();
+    const parentRect = document.body.getBoundingClientRect();
 
-      const floatText = document.createElement('span');
-      floatText.innerHTML = `-${amount} <img src="img/coin.png" alt="coin" width="18" height="18" style="vertical-align:middle;">`;
-      floatText.style.position = 'absolute';
-      floatText.style.left = (btnRect.left - parentRect.left + btnRect.width/2 - 20 + Math.random()*20) + 'px';
-      floatText.style.top = (btnRect.top - parentRect.top + btnRect.height/2 - 10 + Math.random()*10) + 'px';
-      floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
-      floatText.style.fontSize = '1.1em';
-      floatText.style.fontWeight = 'bold';
-      floatText.style.color = '#e74c3c';
-      floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
-      floatText.style.pointerEvents = 'none';
-      floatText.style.opacity = '1';
-      floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
+    const floatText = document.createElement('span');
+    floatText.innerHTML = `-${amount} <img src="img/coin.png" alt="coin" width="18" height="18" style="vertical-align:middle;">`;
+    floatText.style.position = 'absolute';
+    floatText.style.left = (btnRect.left - parentRect.left + btnRect.width/2 - 20 + Math.random()*20) + 'px';
+    floatText.style.top = (btnRect.top - parentRect.top + btnRect.height/2 - 10 + Math.random()*10) + 'px';
+    floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
+    floatText.style.fontSize = '1.1em';
+    floatText.style.fontWeight = 'bold';
+    floatText.style.color = '#e74c3c';
+    floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
+    floatText.style.pointerEvents = 'none';
+    floatText.style.opacity = '1';
+    floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
 
-      document.body.appendChild(floatText);
+    document.body.appendChild(floatText);
 
-      setTimeout(() => {
-        floatText.style.transform = `translateY(-36px) scale(1.1)`;
-        floatText.style.opacity = '0';
-      }, 10);
+    setTimeout(() => {
+      floatText.style.transform = `translateY(-36px) scale(1.1)`;
+      floatText.style.opacity = '0';
+    }, 10);
 
-      setTimeout(() => {
-        floatText.remove();
-      }, 1100);
+    setTimeout(() => {
+      floatText.remove();
+    }, 1100);
+  }
+
+  // Buy Elixir Collector
+  buyElixirBtn.addEventListener('click', () => {
+    if (gold >= 50) {
+      gold -= 50;
+      elixirCollectors++;
+      goldPerSec = elixirCollectors * 1;
+      updateDisplay();
+      showFloatingCost(buyElixirBtn, 50);
     }
+  });
 
-    // Buy Elixir Collector
-    buyElixirBtn.addEventListener('click', () => {
-      if (gold >= 50) {
-        gold -= 50;
-        elixirCollectors++;
-        goldPerSec = elixirCollectors * 1;
-        updateDisplay();
-        showFloatingCost(buyElixirBtn, 50);
-      }
-    });
+  // Buy Goblins
+  buyGoblinBtn.addEventListener('click', () => {
+    if (gold >= 100) {
+      gold -= 100;
+      goblins++;
+      troopOwned.Goblins++;
+      updateDisplay();
+      showFloatingCost(buyGoblinBtn, 100);
+    }
+  });
 
-    // Buy Goblins
-    buyGoblinBtn.addEventListener('click', () => {
-      if (gold >= 100) {
-        gold -= 100;
-        goblins++;
-        troopOwned.Goblins++;
-        updateDisplay();
-        showFloatingCost(buyGoblinBtn, 100);
-      }
-    });
-
-    // Buy 10x Elixir Collectors
+  // Buy 10x Elixir Collectors
 document.getElementById('buyElixirBtn10x').addEventListener('click', () => {
   if (gold >= 500) {
     gold -= 500;
