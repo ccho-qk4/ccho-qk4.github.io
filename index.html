@@ -554,6 +554,42 @@ window.setStrategy = function(strategy) {
   }
 };
 
+// Add this BEFORE DOMContentLoaded (around line 540)
+function showInfo(button, description) {
+  // Remove any existing popup
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.textContent = description;
+  document.body.appendChild(popup);
+  activePopup = popup;
+
+  // Position popup much higher above the button
+  const buttonRect = button.getBoundingClientRect();
+  popup.style.display = 'block';
+  popup.style.left = buttonRect.left + 'px';
+  popup.style.top = (buttonRect.top - 50) + 'px';
+
+  // Close popup when clicking outside
+  const closePopup = (e) => {
+    if (!popup.contains(e.target) && e.target !== button) {
+      popup.remove();
+      activePopup = null;
+      document.removeEventListener('click', closePopup);
+    }
+  };
+  
+  // Delay adding click listener to prevent immediate closure
+  setTimeout(() => {
+    document.addEventListener('click', closePopup);
+  }, 0);
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   // DOM elements
   const trophiesSpan = document.getElementById('trophies');
