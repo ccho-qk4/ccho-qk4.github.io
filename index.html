@@ -458,6 +458,40 @@ let trophyGainBonus = 0;
 let trophyLossReduction = 0;
 let goldHoardChance = 0;
 let passiveGoldMultiplier = 1;
+let battleInProgress = false;
+let activePopup = null;
+let currentStrategy = 'balanced';
+
+// Troop deployment
+let troopTypes = ["Goblins"];
+let troopOwned = { 
+  Goblins: 0, 
+  Skeletons: 0, 
+  Barbarians: 0, 
+  Wizards: 0, 
+  Valkyrie: 0, 
+  'Mini Pekka': 0, 
+  Knights: 0, 
+  'Ice Golem': 0, 
+  'Dart Goblin': 0, 
+  'Hog Riders': 0 
+};
+
+let deployedTroops = { 
+  Goblins: 0, 
+  Skeletons: 0, 
+  Barbarians: 0, 
+  Wizards: 0, 
+  Valkyrie: 0, 
+  'Mini Pekka': 0, 
+  Knights: 0, 
+  'Ice Golem': 0, 
+  'Dart Goblin': 0, 
+  'Hog Riders': 0 
+};
+
+let unlockedTroops = ["Goblins"];
+let currentArena = 0;
 
 const ARENAS = [
   { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: null },
@@ -471,8 +505,6 @@ const ARENAS = [
   { name: "Jungle Arena", trophies: 2600, cost: 150000, troops: [{type: "Ice Golem", required: 100}], unlocks: "Dart Goblin" },
   { name: "Hog Mountain", trophies: 3000, cost: 200000, troops: [{type: "Dart Goblin", required: 100}], unlocks: "Hog Riders" }
 ];
-let currentArena = 0;
-let unlockedTroops = ["Goblins"];
 
 window.addEventListener('DOMContentLoaded', function() {
   // DOM elements
@@ -556,7 +588,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     setTimeout(() => floatText.remove(), 1100);
   });
-  let activePopup = null;
+  
   // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
   let lastTouchEnd = 0;
   document.addEventListener('touchend', function(event) {
@@ -570,14 +602,6 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     lastTouchEnd = now;
   }, false);
-
-  // Game state
-  let trophies = 0;
-  let gold = 0;
-  let goldPerSec = 0;
-  let mineGoldBase = 5;
-  let goblins = 0;
-  let elixirCollectors = 0;
 
   // Troop deployment
   let troopTypes = ["Goblins"];
@@ -1277,8 +1301,6 @@ const strategies = {
     troopLoss: 0.7 
   }
 };
-
-let currentStrategy = 'balanced';
 
 window.setStrategy = function(strategy) {
   currentStrategy = strategy;
