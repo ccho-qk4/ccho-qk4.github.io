@@ -205,8 +205,15 @@ button:hover {
   <script>
 const ARENAS = [
   { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: null },
-  { name: "Bone Pit", trophies: 300, cost: 10000, troops: [{type: "Goblins", required: 100}], unlocks: "Skeletons" },
-  // ... more arenas ...
+  { name: "Bone Pit", trophies: 300, cost: 5000, troops: [{type: "Goblins", required: 50}], unlocks: "Skeletons" },
+  { name: "Barbarian Bowl", trophies: 600, cost: 10000, troops: [{type: "Skeletons", required: 100}], unlocks: "Barbarians" },
+  { name: "Spell Valley", trophies: 1000, cost: 20000, troops: [{type: "Barbarians", required: 100}], unlocks: "Wizards" },
+  { name: "Builder's Workshop", trophies: 1300, cost: 35000, troops: [{type: "Wizards", required: 100}], unlocks: "Valkyrie" },
+  { name: "Pekka's Playhouse", trophies: 1600, cost: 50000, troops: [{type: "Valkyrie", required: 100}], unlocks: "Mini Pekka" },
+  { name: "Royal Arena", trophies: 2000, cost: 75000, troops: [{type: "Mini Pekka", required: 100}], unlocks: "Knights" },
+  { name: "Frozen Peak", trophies: 2300, cost: 100000, troops: [{type: "Knights", required: 100}], unlocks: "Ice Golem" },
+  { name: "Jungle Arena", trophies: 2600, cost: 150000, troops: [{type: "Ice Golem", required: 100}], unlocks: "Dart Goblin" },
+  { name: "Hog Mountain", trophies: 3000, cost: 200000, troops: [{type: "Dart Goblin", required: 100}], unlocks: "Hog Riders" }
 ];
 let currentArena = 0;
 let unlockedTroops = ["Goblins"];
@@ -306,9 +313,33 @@ window.addEventListener('DOMContentLoaded', function() {
   let elixirCollectors = 0;
 
   // Troop deployment
-  let deployedTroops = { Goblins: 0 };
   let troopTypes = ["Goblins"];
-  let troopOwned = { Goblins: 0 };
+  // Initialize troopOwned to include all possible troops
+  let troopOwned = { 
+  Goblins: 0, 
+  Skeletons: 0, 
+  Barbarians: 0, 
+  Wizards: 0, 
+  Valkyrie: 0, 
+  'Mini Pekka': 0, 
+  Knights: 0, 
+  'Ice Golem': 0, 
+  'Dart Goblin': 0, 
+  'Hog Riders': 0 
+};
+
+let deployedTroops = { 
+  Goblins: 0, 
+  Skeletons: 0, 
+  Barbarians: 0, 
+  Wizards: 0, 
+  Valkyrie: 0, 
+  'Mini Pekka': 0, 
+  Knights: 0, 
+  'Ice Golem': 0, 
+  'Dart Goblin': 0, 
+  'Hog Riders': 0 
+};
 
   // Battle state
   let battleInProgress = false; // <-- Add this flag
@@ -565,6 +596,13 @@ function buyTroop(troopType, cost, amount = 1) {
       skeletons += amount;
     }
     updateDisplay();
+    
+    // Update the specific troop counter display
+    const countSpan = document.getElementById(`${troopType.toLowerCase()}Count`);
+    if (countSpan) {
+      countSpan.textContent = troopOwned[troopType];
+    }
+    
     const btn = document.getElementById(`buy${troopType}${amount > 1 ? '10x' : ''}Btn`);
     showFloatingCost(btn, totalCost);
   }
@@ -685,10 +723,21 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
       const newUpgradeRow = document.createElement('div');
       newUpgradeRow.className = 'upgrade-row';
 
-      const cost = newTroop === 'Skeletons' ? 150 : 100;
-      const description = newTroop === 'Skeletons'
-        ? 'Increases critical hit chance when mining gold by 0.1%'
-        : `New troop type from ${nextArena.name}`;
+      // Define costs and descriptions for each troop
+      const troopData = {
+        'Skeletons': { cost: 150, description: 'Each Skeleton increases critical hit chance when mining gold by 0.1%' },
+        'Barbarians': { cost: 200, description: 'Each Barbarian increases gold earned per battle by 2%' },
+        'Wizards': { cost: 300, description: 'Each Wizard increases passive gold generation by 1%' },
+        'Valkyrie': { cost: 500, description: 'Each Valkyrie reduces all troop purchase costs by 1% (minimum 50%)' },
+        'Mini Pekka': { cost: 750, description: 'Each Mini Pekka gives 0.2% chance to instantly win battles' },
+        'Knights': { cost: 1000, description: 'Each Knight increases trophies gained from victories by 1' },
+        'Ice Golem': { cost: 1500, description: 'Each Ice Golem reduces trophies lost from defeats by 1' },
+        'Dart Goblin': { cost: 2000, description: 'Each Dart Goblin increases passive gold speed by 1%' },
+        'Hog Riders': { cost: 3000, description: 'Each Hog Rider gives 0.1% chance to find gold hoard after battle' }
+      };
+
+      const cost = troopData[newTroop].cost;
+      const description = troopData[newTroop].description;
 
       newUpgradeRow.innerHTML = `
         <div class="upgrade-label">
