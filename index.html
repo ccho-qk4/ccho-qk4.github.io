@@ -441,6 +441,24 @@ button.success {
   </div>
 </div>
   <script>
+// Move these to the TOP of your script, before DOMContentLoaded
+let trophies = 0;
+let gold = 0;
+let goldPerSec = 0;
+let mineGoldBase = 5;
+let goblins = 0;
+let elixirCollectors = 0;
+let skeletons = 0;
+let criticalHitChance = 0;
+let battleCost = 500;
+let chestFindChance = 0;
+let defeatAvoidanceChance = 0;
+let instantWinChance = 0;
+let trophyGainBonus = 0;
+let trophyLossReduction = 0;
+let goldHoardChance = 0;
+let passiveGoldMultiplier = 1;
+
 const ARENAS = [
   { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: null },
   { name: "Bone Pit", trophies: 300, cost: 5000, troops: [{type: "Goblins", required: 100}], unlocks: "Skeletons" },
@@ -457,7 +475,7 @@ let currentArena = 0;
 let unlockedTroops = ["Goblins"];
 
 window.addEventListener('DOMContentLoaded', function() {
-  // DOM elements (move these to the top!)
+  // DOM elements
   const trophiesSpan = document.getElementById('trophies');
   const goldSpan = document.getElementById('gold');
   const goldPerSecSpan = document.getElementById('goldPerSec');
@@ -1428,4 +1446,3 @@ function displayTroopBonuses() {
   // You can display these bonuses somewhere in your UI if desired
   return bonusText;
 }
-  
