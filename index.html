@@ -192,6 +192,137 @@ button:hover {
   font-weight: bold;
   color: #ffe066;
 }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes goldPulse {
+  0% { transform: scale(1); color: #ffe066; }
+  50% { transform: scale(1.15); color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+  100% { transform: scale(1); color: #ffe066; }
+}
+
+@keyframes levelUpGlow {
+  0% { box-shadow: 0 0 5px #4CAF50; }
+  50% { box-shadow: 0 0 20px #4CAF50, 0 0 30px #4CAF50; }
+  100% { box-shadow: 0 0 5px #4CAF50; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes coinFlip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.gold-earned {
+  animation: goldPulse 0.6s ease-in-out;
+}
+
+.level-up {
+  animation: levelUpGlow 1s ease-in-out 3;
+}
+
+.battle-lost {
+  animation: shake 0.5s ease-in-out;
+}
+
+.coin-icon {
+  animation: coinFlip 0.8s ease-in-out;
+}
+
+/* Enhanced button feedback */
+button:active {
+  transform: translateY(3px) scale(0.95);
+  animation: none;
+}
+
+button.success {
+  background: linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%);
+  animation: levelUpGlow 0.3s ease-out;
+}
+
+/* New styles for enhanced feedback */
+@keyframes bigNumberPop {
+  0% { transform: scale(0.5) translateY(0); opacity: 1; }
+  50% { transform: scale(1.2) translateY(-20px); opacity: 1; }
+  100% { transform: scale(1) translateY(-50px); opacity: 0; }
+}
+
+.strategy-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.strategy-option {
+  background: #1a2332;
+  border: 2px solid #2e3d53;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.strategy-option:hover {
+  border-color: #ffe066;
+  transform: translateY(-2px);
+}
+
+.strategy-option.active {
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.strategy-option h4 {
+  margin: 0 0 8px 0;
+  color: #ffe066;
+}
+
+.strategy-option p {
+  margin: 8px 0 16px 0;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.meta-section {
+  background: linear-gradient(145deg, #2d1b3d, #3d2b4d);
+  border: 3px solid #9C27B0;
+  border-radius: 16px;
+  margin-top: 20px;
+}
+
+.meta-upgrades {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.meta-upgrade {
+  background: rgba(0,0,0,0.4);
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #9C27B0;
+  text-align: center;
+}
+
+.meta-upgrade h4 {
+  color: #E1BEE7;
+  margin-top: 0;
+}
+
+.meta-upgrade button {
+  background: linear-gradient(180deg, #9C27B0 0%, #673AB7 100%);
+  color: white;
+}
   </style>
 </head>
 <body>
@@ -255,10 +386,64 @@ button:hover {
       <span>Goblins: <span id="goblinCount">0</span></span>
     </div>
   </div>
+  <div class="section">
+  <h3>Battle Strategy
+    <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Choose your battle approach. Each strategy affects battle cost, trophy gains, and troop losses differently.')" style="margin-left: 8px;">
+  </h3>
+  <div class="strategy-container">
+    <div class="strategy-option" data-strategy="aggressive">
+      <h4>🗡️ Aggressive</h4>
+      <p>-20% Battle Cost<br>+20% Trophy Gain<br>+30% Troop Loss</p>
+      <button onclick="setStrategy('aggressive')">Select</button>
+    </div>
+    <div class="strategy-option" data-strategy="balanced">
+      <h4>⚖️ Balanced</h4>
+      <p>Normal Battle Cost<br>Normal Trophy Gain<br>Normal Troop Loss</p>
+      <button onclick="setStrategy('balanced')">Select</button>
+    </div>
+    <div class="strategy-option" data-strategy="defensive">
+      <h4>🛡️ Defensive</h4>
+      <p>+20% Battle Cost<br>-20% Trophy Gain<br>-30% Troop Loss</p>
+      <button onclick="setStrategy('defensive')">Select</button>
+    </div>
+  </div>
+  <p>Current Strategy: <span id="currentStrategy">Balanced</span></p>
+</div>
+  <div class="section meta-section" id="metaSection">
+  <h3>🌟 Eternal Upgrades
+    <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Permanent upgrades that persist even through prestige! These bonuses are forever.')" style="margin-left: 8px;">
+  </h3>
+  <div class="meta-upgrades">
+    <div class="meta-upgrade">
+      <h4>Golden Touch</h4>
+      <p>+5% gold generation forever</p>
+      <p>Level: <span id="goldenTouchLevel">0</span>/10</p>
+      <button id="buyGoldenTouch">1,000,000 Gold</button>
+    </div>
+    <div class="meta-upgrade">
+      <h4>Battle Master</h4>
+      <p>+2% win chance forever</p>
+      <p>Level: <span id="battleMasterLevel">0</span>/20</p>
+      <button id="buyBattleMaster">2,500,000 Gold</button>
+    </div>
+    <div class="meta-upgrade">
+      <h4>Efficiency Expert</h4>
+      <p>-5% all upgrade costs forever</p>
+      <p>Level: <span id="efficiencyLevel">0</span>/10</p>
+      <button id="buyEfficiency">5,000,000 Gold</button>
+    </div>
+    <div class="meta-upgrade">
+      <h4>Trophy Magnet</h4>
+      <p>+10% trophy gains forever</p>
+      <p>Level: <span id="trophyMagnetLevel">0</span>/5</p>
+      <button id="buyTrophyMagnet">10,000,000 Gold</button>
+    </div>
+  </div>
+</div>
   <script>
 const ARENAS = [
   { name: "Goblin Stadium", trophies: 0, cost: 0, troops: [], unlocks: null },
-  { name: "Bone Pit", trophies: 300, cost: 5000, troops: [{type: "Goblins", required: 50}], unlocks: "Skeletons" },
+  { name: "Bone Pit", trophies: 300, cost: 5000, troops: [{type: "Goblins", required: 100}], unlocks: "Skeletons" },
   { name: "Barbarian Bowl", trophies: 600, cost: 10000, troops: [{type: "Skeletons", required: 100}], unlocks: "Barbarians" },
   { name: "Spell Valley", trophies: 1000, cost: 20000, troops: [{type: "Barbarians", required: 100}], unlocks: "Wizards" },
   { name: "Builder's Workshop", trophies: 1300, cost: 35000, troops: [{type: "Wizards", required: 100}], unlocks: "Valkyrie" },
@@ -291,56 +476,67 @@ window.addEventListener('DOMContentLoaded', function() {
     let bonus = 1 + goblins * 0.05;
     let value = mineGoldBase * bonus;
     
-    // Check for critical hit
-    if (Math.random() * 100 < criticalHitChance) {
+    // Check for Skeleton critical hit (0.2% per skeleton)
+    let isCritical = Math.random() * 100 < criticalHitChance;
+    
+    if (isCritical) {
       value *= 2;
-      // Show critical hit text
+      // Show enhanced critical hit text
       const btnRect = mineGoldBtn.getBoundingClientRect();
       const critText = document.createElement('span');
-      critText.textContent = 'CRITICAL!';
-      critText.style.position = 'absolute';
-      critText.style.left = btnRect.left + 'px';
-      critText.style.top = (btnRect.top - 20) + 'px';
-      critText.style.color = '#ff4444';
-      critText.style.fontWeight = 'bold';
+      critText.textContent = '💀 CRITICAL HIT! 💀';
+      critText.style.cssText = `
+        position: absolute;
+        left: ${btnRect.left}px;
+        top: ${btnRect.top - 30}px;
+        color: #ff4444;
+        font-weight: bold;
+        font-size: 1.4em;
+        text-shadow: 2px 2px 0 #000;
+        pointer-events: none;
+        z-index: 1000;
+        animation: bigNumberPop 2s ease-out forwards;
+      `;
       document.body.appendChild(critText);
-      setTimeout(() => critText.remove(), 1000);
+      setTimeout(() => critText.remove(), 2000);
+      
+      // Add screen shake effect
+      document.body.style.animation = 'shake 0.5s ease-in-out';
+      setTimeout(() => {
+        document.body.style.animation = '';
+      }, 500);
     }
     
     gold += value;
     updateDisplay();
 
-    // Floating gold text effect
+    // Enhanced floating gold text
     const btnRect = mineGoldBtn.getBoundingClientRect();
-    const parentRect = document.body.getBoundingClientRect();
-
-    // Create the floating text element
     const floatText = document.createElement('span');
     floatText.textContent = `+${value.toFixed(2)}`;
-    floatText.style.position = 'absolute';
-    floatText.style.left = (btnRect.left - parentRect.left + Math.random() * btnRect.width * 0.6) + 'px';
-    floatText.style.top = (btnRect.top - parentRect.top + Math.random() * btnRect.height * 0.3) + 'px';
-    floatText.style.fontFamily = "'Supercell Magic', Arial, sans-serif";
-    floatText.style.fontSize = '1.2em';
-    floatText.style.fontWeight = 'bold';
-    floatText.style.color = '#ffe066';
-    floatText.style.textShadow = '1px 1px 0 #2e3d53, 2px 2px 0 #b8860b';
-    floatText.style.pointerEvents = 'none';
-    floatText.style.opacity = '1';
-    floatText.style.transition = 'transform 1s cubic-bezier(.4,2,.6,1), opacity 1s';
+    floatText.style.cssText = `
+      position: absolute;
+      left: ${btnRect.left + Math.random() * btnRect.width * 0.6}px;
+      top: ${btnRect.top + Math.random() * btnRect.height * 0.3}px;
+      font-family: 'Supercell Magic', Arial, sans-serif;
+      font-size: ${isCritical ? '1.6em' : '1.2em'};
+      font-weight: bold;
+      color: ${isCritical ? '#ff4444' : '#ffe066'};
+      text-shadow: 1px 1px 0 #2e3d53, 2px 2px 0 #b8860b;
+      pointer-events: none;
+      opacity: 1;
+      transition: transform 1s cubic-bezier(.4,2,.6,1), opacity 1s;
+      z-index: 999;
+    `;
 
     document.body.appendChild(floatText);
 
-    // Trigger the animation (float up and fade out)
     setTimeout(() => {
-      floatText.style.transform = `translateY(-48px) scale(1.2)`;
+      floatText.style.transform = `translateY(-48px) scale(${isCritical ? '1.5' : '1.2'})`;
       floatText.style.opacity = '0';
     }, 10);
 
-    // Remove the element after animation
-    setTimeout(() => {
-      floatText.remove();
-    }, 1100);
+    setTimeout(() => floatText.remove(), 1100);
   });
   let activePopup = null;
   // Prevent double-tap zoom on iOS/Safari, but allow rapid button taps
@@ -404,6 +600,15 @@ let deployedTroops = {
   // Initialize battle cost
 let battleCost = 500;
 
+// Add these to your existing game state variables
+let chestFindChance = 0;
+let defeatAvoidanceChance = 0;
+let instantWinChance = 0;
+let trophyGainBonus = 0;
+let trophyLossReduction = 0;
+let goldHoardChance = 0;
+let passiveGoldMultiplier = 1;
+
 // Game loop for passive gold generation
   setInterval(() => {
     if (!battleInProgress) {
@@ -413,8 +618,17 @@ let battleCost = 500;
   }, 1000);
 
   function updateDisplay() {
-    // Calculate goldPerSec first
-    goldPerSec = elixirCollectors * 1;  // Each collector gives 1 gold/sec
+    // Calculate passive gold generation with bonuses
+    let baseGoldPerSec = elixirCollectors * 1;
+    
+    // Apply Wizard bonus (+1% per wizard)
+    const wizardCount = troopOwned.Wizards || 0;
+    passiveGoldMultiplier = 1 + (wizardCount * 0.01);
+    
+    // Apply meta bonuses
+    const metaGoldBonus = 1 + (metaUpgrades.goldenTouch * 0.05);
+    
+    goldPerSec = Math.floor(baseGoldPerSec * passiveGoldMultiplier * metaGoldBonus);
 
     // Update display elements
     trophiesSpan.textContent = trophies;
@@ -423,15 +637,19 @@ let battleCost = 500;
     elixirCountSpan.textContent = elixirCollectors;
     goblinCountSpan.textContent = goblins;
 
-    // Calculate current mine gold value
+    // Calculate current mine gold value with Goblin bonus
     let bonus = 1 + goblins * 0.05;
     let mineGoldValue = mineGoldBase * bonus;
     mineGoldBtn.textContent = `Mine Gold (+${mineGoldValue.toFixed(2)})`;
 
-    // Update battle button cost
-    battleBtn.textContent = `Battle! (Cost: ${battleCost} gold)`;
+    // Update battle button cost with strategy modifier
+    const strategyCost = Math.floor(battleCost * strategies[currentStrategy].battleCost);
+    battleBtn.textContent = `Battle! (Cost: ${strategyCost} gold)`;
 
-    // Update troop controls with sliders (only recreate if troop types changed)
+    // Update troop bonuses
+    updateTroopBonuses();
+
+    // Update troop controls (existing slider code)
     if (troopListDiv.children.length !== troopTypes.length) {
       troopListDiv.innerHTML = '';
       troopTypes.forEach(type => {
@@ -446,15 +664,13 @@ let battleCost = 500;
         slider.step = '1';
         slider.value = deployedTroops[type];
         
-        // Use event listeners instead of inline handlers for better performance
         slider.addEventListener('input', (e) => {
           deployedTroops[type] = parseInt(e.target.value);
           div.querySelector('.troop-count').textContent = deployedTroops[type];
           
-          // Update win chance
           let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-          let winChance = Math.min(99, 50 + (totalTroops * 0.1));
-          winChanceSpan.textContent = winChance;
+          let winChance = Math.min(99, 50 + (totalTroops * 0.1) + (metaUpgrades.battleMaster * 2));
+          winChanceSpan.textContent = Math.floor(winChance);
         });
         
         div.innerHTML = `
@@ -462,12 +678,10 @@ let battleCost = 500;
           <span class="troop-count">${deployedTroops[type]}</span>
         `;
         
-        // Insert slider between info and count
         div.insertBefore(slider, div.querySelector('.troop-count'));
         troopListDiv.appendChild(div);
       });
     } else {
-      // Just update existing slider max values and troop counts
       troopTypes.forEach((type, index) => {
         const container = troopListDiv.children[index];
         const slider = container.querySelector('.troop-slider');
@@ -481,23 +695,34 @@ let battleCost = 500;
       });
     }
 
-    // Win chance calculation - 0.1% per troop deployed
+    // Win chance calculation with bonuses
     let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-    let winChance = Math.min(99, 50 + (totalTroops * 0.1)); // Cap at 99%
-    winChanceSpan.textContent = winChance;
+    let winChance = Math.min(99, 50 + (totalTroops * 0.1) + (metaUpgrades.battleMaster * 2));
+    winChanceSpan.textContent = Math.floor(winChance);
 
-    // Enable/disable battle button
-    battleBtn.disabled = gold < battleCost || battleInProgress;
+    battleBtn.disabled = gold < strategyCost || battleInProgress;
 
-    // Update skeleton count if exists
+    // Update skeleton count and critical hit chance
     const skeletonCountSpan = document.getElementById('skeletonCount');
     if (skeletonCountSpan) {
       skeletonCountSpan.textContent = skeletons;
     }
-    criticalHitChance = skeletons * 0.1;
+    criticalHitChance = skeletons * 0.2; // Updated to 0.2% per skeleton
 
     checkArenaUpgrade();
   }
+
+  function updateTroopBonuses() {
+  // Update all troop-based bonuses
+  chestFindChance = (troopOwned.Valkyrie || 0) * 0.3;
+  defeatAvoidanceChance = (troopOwned.Barbarians || 0) * 0.3;
+  instantWinChance = (troopOwned['Mini Pekka'] || 0) * 0.2;
+  trophyGainBonus = (troopOwned.Knights || 0) * 1; // +1 trophy per knight
+  trophyLossReduction = (troopOwned['Ice Golem'] || 0) * 1; // -1 trophy loss per ice golem
+  goldHoardChance = (troopOwned['Hog Riders'] || 0) * 0.1;
+  
+  // Dart Goblin bonus is already applied in updateDisplay via passiveGoldMultiplier
+}
 
   // Troop deployment controls
   window.changeTroop = function(type, delta) {
@@ -583,16 +808,34 @@ window.updateDeployedTroops = function(type, value) {
   }
 
   battleBtn.addEventListener('click', () => {
-    if (gold < battleCost || battleInProgress) return;
-    gold -= battleCost;
+    const strategyCost = Math.floor(battleCost * strategies[currentStrategy].battleCost);
+    if (gold < strategyCost || battleInProgress) return;
+    
+    gold -= strategyCost;
     battleBtn.disabled = true;
+    
     showBattleProgress(() => {
       let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-      let winChance = Math.min(99, 50 + (totalTroops * 0.1)); // Cap at 99%
-      let win = Math.random() * 100 < winChance;
+      let winChance = Math.min(99, 50 + (totalTroops * 0.1) + (metaUpgrades.battleMaster * 2));
+      
+      // Check for Mini Pekka instant win
+      let instantWin = Math.random() * 100 < instantWinChance;
+      
+      let win = instantWin || Math.random() * 100 < winChance;
       
       if (win) {
+        // Victory logic
         let trophiesWon = 26 + Math.floor(Math.random() * 8);
+        
+        // Apply strategy modifier
+        trophiesWon = Math.floor(trophiesWon * strategies[currentStrategy].trophyGain);
+        
+        // Apply Knight bonus (flat +1 per knight)
+        trophiesWon += trophyGainBonus;
+        
+        // Apply meta trophy bonus
+        trophiesWon = Math.floor(trophiesWon * (1 + (metaUpgrades.trophyMagnet * 0.1)));
+        
         // Cap trophies at next arena threshold if requirements aren't met
         const nextArena = ARENAS[currentArena + 1];
         if (nextArena && trophies + trophiesWon > nextArena.trophies) {
@@ -600,38 +843,77 @@ window.updateDeployedTroops = function(type, value) {
         } else {
           trophies += trophiesWon;
         }
-        alert(`Victory! You won ${trophiesWon} trophies.`);
+        
+        let message = `Victory! You won ${trophiesWon} trophies.`;
+        
+        if (instantWin) {
+          message = `💥 MINI PEKKA INSTANT WIN! You won ${trophiesWon} trophies!`;
+        }
+        
+        // Check for Valkyrie chest find
+        if (Math.random() * 100 < chestFindChance) {
+          const chestGold = Math.floor(strategyCost * (2 + Math.random() * 3)); // 2-5x battle cost
+          gold += chestGold;
+          message += `\n🎁 Found a treasure chest! +${chestGold} gold!`;
+        }
+        
+        // Check for Hog Rider gold hoard
+        if (Math.random() * 100 < goldHoardChance) {
+          const hoardGold = Math.floor(strategyCost * (5 + Math.random() * 10)); // 5-15x battle cost
+          gold += hoardGold;
+          message += `\n💰 Hog Riders found a gold hoard! +${hoardGold} gold!`;
+        }
+        
+        alert(message);
+        
       } else {
-        let trophiesLost = 20 + Math.floor(Math.random() * 8);
-        trophies = Math.max(0, trophies - trophiesLost);
+        // Defeat logic
         
-        // Lose 30% of deployed troops on defeat
-        let troopsLostMessage = "";
-        troopTypes.forEach(type => {
-          if (deployedTroops[type] > 0) {
-            const troopsLost = Math.ceil(deployedTroops[type] * 0.3);
-            troopOwned[type] = Math.max(0, troopOwned[type] - troopsLost);
-            deployedTroops[type] = Math.max(0, deployedTroops[type] - troopsLost);
-            
-            // Update individual counters
-            if (type === 'Goblins') {
-              goblins = Math.max(0, goblins - troopsLost);
-            }
-            if (type === 'Skeletons') {
-              skeletons = Math.max(0, skeletons - troopsLost);
-            }
-            
-            if (troopsLost > 0) {
-              troopsLostMessage += `${troopsLost} ${type}, `;
-            }
-          }
-        });
-        
-        if (troopsLostMessage) {
-          troopsLostMessage = troopsLostMessage.slice(0, -2); // Remove last comma
-          alert(`Defeat! You lost ${trophiesLost} trophies and ${troopsLostMessage}.`);
+        // Check for Barbarian defeat avoidance
+        if (Math.random() * 100 < defeatAvoidanceChance) {
+          alert(`🛡️ Barbarians protected your army! No troops lost, but you still lose trophies.`);
+          
+          let trophiesLost = 20 + Math.floor(Math.random() * 8);
+          trophiesLost = Math.max(1, trophiesLost - trophyLossReduction); // Ice Golem reduction
+          trophies = Math.max(0, trophies - trophiesLost);
+          
+          alert(`Defeat! You lost ${trophiesLost} trophies, but your troops survived!`);
         } else {
-          alert(`Defeat! You lost ${trophiesLost} trophies.`);
+          // Normal defeat with troop losses
+          let trophiesLost = 20 + Math.floor(Math.random() * 8);
+          trophiesLost = Math.max(1, trophiesLost - trophyLossReduction); // Ice Golem reduction
+          trophies = Math.max(0, trophies - trophiesLost);
+          
+          // Calculate troop losses with strategy modifier
+          const lossRate = strategies[currentStrategy].troopLoss * 0.3;
+          let troopsLostMessage = "";
+          
+          troopTypes.forEach(type => {
+            if (deployedTroops[type] > 0) {
+              const troopsLost = Math.ceil(deployedTroops[type] * lossRate);
+              troopOwned[type] = Math.max(0, troopOwned[type] - troopsLost);
+              deployedTroops[type] = Math.max(0, deployedTroops[type] - troopsLost);
+              
+              // Update individual counters
+              if (type === 'Goblins') {
+                goblins = Math.max(0, goblins - troopsLost);
+              }
+              if (type === 'Skeletons') {
+                skeletons = Math.max(0, skeletons - troopsLost);
+              }
+              
+              if (troopsLost > 0) {
+                troopsLostMessage += `${troopsLost} ${type}, `;
+              }
+            }
+          });
+          
+          if (troopsLostMessage) {
+            troopsLostMessage = troopsLostMessage.slice(0, -2);
+            alert(`Defeat! You lost ${trophiesLost} trophies and ${troopsLostMessage}.`);
+          } else {
+            alert(`Defeat! You lost ${trophiesLost} trophies.`);
+          }
         }
       }
       
@@ -782,11 +1064,19 @@ function buyTroop(troopType, cost, amount = 1) {
     // Fix checkArenaUpgrade function
 function checkArenaUpgrade() {
   const nextArena = ARENAS[currentArena + 1];
-  if (!nextArena) return; // No more arenas
-
   const upgradeSection = document.querySelector('.upgrade-arena');
   const reqDisplay = document.getElementById('arenaUpgradeRequirements');
   const upgradeBtn = document.getElementById('upgradeArenaBtn');
+
+  // If we're at the final arena, hide upgrade section permanently
+  if (!nextArena) {
+    upgradeSection.style.display = 'none';
+    trophiesSpan.style.color = '#fff';
+    
+    // Show endgame content if we haven't already
+    showEndgameContent();
+    return;
+  }
 
   // Check if we've hit trophy threshold
   if (trophies >= nextArena.trophies) {
@@ -843,13 +1133,18 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
       skeletons -= t.required;
       if (skeletons < 0) skeletons = 0;
     }
-    // Add more troop types as needed when you implement their individual counters
+    
+    // Update the display counter for this troop type
+    const countSpan = document.getElementById(`${t.type.toLowerCase()}Count`);
+    if (countSpan) {
+      countSpan.textContent = troopOwned[t.type];
+    }
   });
 
   // Advance arena
   currentArena++;
 
-  // Update battle cost when arena changes (add this to your upgrade arena handler)
+  // Update battle cost when arena changes
   battleCost = 500 + (currentArena * 200);
 
   // Update arena title
@@ -871,15 +1166,15 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
 
       // Define costs and descriptions for each troop
       const troopData = {
-        'Skeletons': { cost: 150, description: 'Each Skeleton increases critical hit chance when mining gold by 0.1%' },
-        'Barbarians': { cost: 200, description: 'Each Barbarian increases gold earned per battle by 2%' },
-        'Wizards': { cost: 300, description: 'Each Wizard increases passive gold generation by 1%' },
-        'Valkyrie': { cost: 500, description: 'Each Valkyrie reduces all troop purchase costs by 1% (minimum 50%)' },
-        'Mini Pekka': { cost: 750, description: 'Each Mini Pekka gives 0.2% chance to instantly win battles' },
-        'Knights': { cost: 1000, description: 'Each Knight increases trophies gained from victories by 1' },
-        'Ice Golem': { cost: 1500, description: 'Each Ice Golem reduces trophies lost from defeats by 1' },
-        'Dart Goblin': { cost: 2000, description: 'Each Dart Goblin increases passive gold speed by 1%' },
-        'Hog Riders': { cost: 3000, description: 'Each Hog Rider gives 0.1% chance to find gold hoard after battle' }
+        'Skeletons': { cost: 150, description: '+0.2% critical hit chance when mining gold' },
+        'Barbarians': { cost: 200, description: '+0.3% chance to avoid troop loss on defeat' },
+        'Wizards': { cost: 300, description: '+1% passive gold generation speed' },
+        'Valkyrie': { cost: 500, description: '+0.3% chance to find chest after winning battle' },
+        'Mini Pekka': { cost: 750, description: '+0.2% chance to instantly win battles' },
+        'Knights': { cost: 1000, description: '+1% trophy gain on victory' },
+        'Ice Golem': { cost: 1500, description: '-1% trophy loss on defeat' },
+        'Dart Goblin': { cost: 2000, description: '+2% something idk yet' },
+        'Hog Riders': { cost: 3000, description: '+0.1% chance to find gold hoard after battle' }
       };
 
       const cost = troopData[newTroop].cost;
@@ -911,6 +1206,226 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   checkArenaUpgrade();
   });
 });
-  </script>
-</body>
-</html>
+
+// Enhanced feedback system
+function enhanceButton(button, type) {
+  button.classList.add(type);
+  setTimeout(() => {
+    button.classList.remove(type);
+  }, type === 'level-up' ? 3000 : 600);
+}
+
+function showBigNumber(element, value, color = '#4CAF50') {
+  const bigText = document.createElement('div');
+  bigText.textContent = `+${value}`;
+  bigText.style.cssText = `
+    position: absolute;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: ${color};
+    pointer-events: none;
+    z-index: 100;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    animation: bigNumberPop 2s ease-out forwards;
+  `;
+  
+  const rect = element.getBoundingClientRect();
+  bigText.style.left = (rect.left + rect.width/2 - 50) + 'px';
+  bigText.style.top = (rect.top - 30) + 'px';
+  
+  document.body.appendChild(bigText);
+  
+  setTimeout(() => bigText.remove(), 2000);
+}
+
+// Strategy System
+const strategies = {
+  aggressive: { 
+    name: "🗡️ Aggressive",
+    battleCost: 0.8, 
+    trophyGain: 1.2, 
+    troopLoss: 1.3 
+  },
+  balanced: { 
+    name: "⚖️ Balanced",
+    battleCost: 1.0, 
+    trophyGain: 1.0, 
+    troopLoss: 1.0 
+  },
+  defensive: { 
+    name: "🛡️ Defensive",
+    battleCost: 1.2, 
+    trophyGain: 0.8, 
+    troopLoss: 0.7 
+  }
+};
+
+let currentStrategy = 'balanced';
+
+window.setStrategy = function(strategy) {
+  currentStrategy = strategy;
+  
+  // Update visual feedback
+  document.querySelectorAll('.strategy-option').forEach(option => {
+    option.classList.remove('active');
+  });
+  document.querySelector(`[data-strategy="${strategy}"]`).classList.add('active');
+  
+  document.getElementById('currentStrategy').textContent = strategies[strategy].name;
+  updateDisplay();
+};
+
+// Initialize strategy display
+document.querySelector('[data-strategy="balanced"]').classList.add('active');
+
+// Infinite Arena System (after Hog Mountain)
+function generateInfiniteArena(level) {
+  return {
+    name: `Legendary Arena ${level}`,
+    trophies: 3000 + (level * 1000),
+    cost: 200000 * Math.pow(1.5, level),
+    troops: [{type: "Hog Riders", required: 100 + (level * 50)}],
+    unlocks: null, // No new troops in infinite arenas
+    rewards: {
+      goldMultiplier: 1 + (level * 0.1),
+      newFeatures: level % 5 === 0
+    }
+  };
+}
+
+let infiniteArenaLevel = 0;
+let infiniteGoldMultiplier = 1.0;
+
+// Modify checkArenaUpgrade to handle infinite progression
+function checkArenaUpgradeInfinite() {
+  let nextArena;
+  
+  if (currentArena < ARENAS.length - 1) {
+    nextArena = ARENAS[currentArena + 1];
+  } else {
+    // Generate infinite arena
+    infiniteArenaLevel = currentArena - (ARENAS.length - 1);
+    nextArena = generateInfiniteArena(infiniteArenaLevel + 1);
+  }
+  
+  const upgradeSection = document.querySelector('.upgrade-arena');
+  const reqDisplay = document.getElementById('arenaUpgradeRequirements');
+  const upgradeBtn = document.getElementById('upgradeArenaBtn');
+
+  if (trophies >= nextArena.trophies) {
+    upgradeSection.style.display = 'block';
+    
+    const hasGold = gold >= nextArena.cost;
+    const hasTroops = nextArena.troops.every(t => troopOwned[t.type] >= t.required);
+    
+    let reqText = `Requirements for ${nextArena.name}:<br>`;
+    reqText += `- ${nextArena.cost.toLocaleString()} Gold<br>`;
+    nextArena.troops.forEach(t => {
+      reqText += `- ${t.required} ${t.type}<br>`;
+    });
+    
+    if (nextArena.rewards) {
+      reqText += `<br><strong>Rewards:</strong><br>`;
+      reqText += `- +${(nextArena.rewards.goldMultiplier - 1) * 100}% Gold Generation<br>`;
+      if (nextArena.rewards.newFeatures) {
+        reqText += `- New Special Feature!<br>`;
+      }
+    }
+    
+    reqDisplay.innerHTML = reqText;
+    upgradeBtn.disabled = !(hasGold && hasTroops);
+    trophiesSpan.style.color = (!hasGold || !hasTroops) ? '#e74c3c' : '#fff';
+  } else {
+    upgradeSection.style.display = 'none';
+    trophiesSpan.style.color = '#fff';
+  }
+}
+
+// Call this function in the appropriate place in your existing code
+checkArenaUpgradeInfinite();
+
+// Meta-progression system
+let metaUpgrades = {
+  goldenTouch: 0,
+  battleMaster: 0,
+  efficiency: 0,
+  trophyMagnet: 0
+};
+
+// Load from localStorage
+const savedMeta = localStorage.getItem('clashIdleMeta');
+if (savedMeta) {
+  metaUpgrades = JSON.parse(savedMeta);
+}
+
+function saveMeta() {
+  localStorage.setItem('clashIdleMeta', JSON.stringify(metaUpgrades));
+}
+
+function updateMetaDisplay() {
+  document.getElementById('goldenTouchLevel').textContent = metaUpgrades.goldenTouch;
+  document.getElementById('battleMasterLevel').textContent = metaUpgrades.battleMaster;
+  document.getElementById('efficiencyLevel').textContent = metaUpgrades.efficiency;
+  document.getElementById('trophyMagnetLevel').textContent = metaUpgrades.trophyMagnet;
+  
+  // Update button costs
+  const goldenTouchCost = 1000000 * Math.pow(2, metaUpgrades.goldenTouch);
+  const battleMasterCost = 2500000 * Math.pow(1.8, metaUpgrades.battleMaster);
+  const efficiencyCost = 5000000 * Math.pow(2.2, metaUpgrades.efficiency);
+  const trophyMagnetCost = 10000000 * Math.pow(3, metaUpgrades.trophyMagnet);
+  
+  document.getElementById('buyGoldenTouch').textContent = 
+    metaUpgrades.goldenTouch >= 10 ? 'MAX' : `${goldenTouchCost.toLocaleString()} Gold`;
+  document.getElementById('buyBattleMaster').textContent = 
+    metaUpgrades.battleMaster >= 20 ? 'MAX' : `${battleMasterCost.toLocaleString()} Gold`;
+  document.getElementById('buyEfficiency').textContent = 
+    metaUpgrades.efficiency >= 10 ? 'MAX' : `${efficiencyCost.toLocaleString()} Gold`;
+  document.getElementById('buyTrophyMagnet').textContent = 
+    metaUpgrades.trophyMagnet >= 5 ? 'MAX' : `${trophyMagnetCost.toLocaleString()} Gold`;
+}
+
+// Meta upgrade event listeners
+document.getElementById('buyGoldenTouch').addEventListener('click', () => {
+  const cost = 1000000 * Math.pow(2, metaUpgrades.goldenTouch);
+  if (gold >= cost && metaUpgrades.goldenTouch < 10) {
+    gold -= cost;
+    metaUpgrades.goldenTouch++;
+    saveMeta();
+    updateMetaDisplay();
+    updateDisplay();
+    showBigNumber(document.getElementById('buyGoldenTouch'), '5% FOREVER!', '#9C27B0');
+  }
+});
+
+// Apply meta bonuses to your existing calculations
+function applyMetaBonuses() {
+  // Apply to gold generation
+  const metaGoldBonus = 1 + (metaUpgrades.goldenTouch * 0.05);
+  goldPerSec = Math.floor(elixirCollectors * 1 * metaGoldBonus);
+  
+  // Apply efficiency bonus to costs (in buyTroop function)
+  const metaEfficiency = 1 - Math.min(0.5, metaUpgrades.efficiency * 0.05);
+  
+  // Apply to battle win chance (in battle logic)
+  const metaBattleBonus = metaUpgrades.battleMaster * 2;
+  
+  // Apply to trophy gains (in battle victory)
+  const metaTrophyBonus = 1 + (metaUpgrades.trophyMagnet * 0.1);
+}
+
+function displayTroopBonuses() {
+  // You can call this in updateDisplay() to show current bonuses
+  const bonusText = [];
+
+  if (chestFindChance > 0) bonusText.push(`🎁 Chest Find: ${chestFindChance.toFixed(1)}%`);
+  if (defeatAvoidanceChance > 0) bonusText.push(`🛡️ Defeat Avoidance: ${defeatAvoidanceChance.toFixed(1)}%`);
+  if (instantWinChance > 0) bonusText.push(`💥 Instant Win: ${instantWinChance.toFixed(1)}%`);
+  if (trophyGainBonus > 0) bonusText.push(`🏆 Trophy Bonus: +${trophyGainBonus}`);
+  if (trophyLossReduction > 0) bonusText.push(`🛡️ Trophy Protection: -${trophyLossReduction}`);
+  if (goldHoardChance > 0) bonusText.push(`💰 Gold Hoard: ${goldHoardChance.toFixed(1)}%`);
+  if (criticalHitChance > 0) bonusText.push(`💀 Critical Chance: ${criticalHitChance.toFixed(1)}%`);
+  
+  // You can display these bonuses somewhere in your UI if desired
+  return bonusText;
+}
+  
