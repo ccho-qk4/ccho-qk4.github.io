@@ -681,19 +681,26 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
   const nextArena = ARENAS[currentArena + 1];
   if (!nextArena) return;
 
+  // Check requirements again for safety
+  if (gold < nextArena.cost) return;
+  for (const t of nextArena.troops) {
+    if ((troopOwned[t.type] || 0) < t.required) return;
+  }
+
   // Deduct costs
   gold -= nextArena.cost;
   nextArena.troops.forEach(t => {
     troopOwned[t.type] -= t.required;
+    if (troopOwned[t.type] < 0) troopOwned[t.type] = 0;
   });
 
-  // Update arena
+  // Advance arena
   currentArena++;
-  
+
   // Update arena title
   document.querySelector('h2').textContent = ARENAS[currentArena].name;
 
-  // Add new troop type if available
+  // Unlock new troop if available
   if (nextArena.unlocks) {
     const newTroop = nextArena.unlocks;
     if (!unlockedTroops.includes(newTroop)) {
@@ -701,17 +708,17 @@ document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
       troopTypes.push(newTroop);
       troopOwned[newTroop] = 0;
       deployedTroops[newTroop] = 0;
-      
-      // Add new troop upgrade UI
+
+      // Add new troop upgrade UI to the shop
       const upgradeSection = document.querySelector('.upgrade-section');
       const newUpgradeRow = document.createElement('div');
       newUpgradeRow.className = 'upgrade-row';
-      
+
       const cost = newTroop === 'Skeletons' ? 150 : 100;
-      const description = newTroop === 'Skeletons' ? 
-        'Increases critical hit chance when mining gold by 0.1%' : 
-        `New troop type from ${nextArena.name}`;
-      
+      const description = newTroop === 'Skeletons'
+        ? 'Increases critical hit chance when mining gold by 0.1%'
+        : `New troop type from ${nextArena.name}`;
+
       newUpgradeRow.innerHTML = `
         <div class="upgrade-label">
           ${newTroop}
