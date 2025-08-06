@@ -440,7 +440,7 @@ let battleCost = 500;
         <input type="range" class="troop-slider" 
                min="0" max="${troopOwned[type]}" 
                value="${deployedTroops[type]}" 
-               onchange="updateDeployedTroops('${type}', this.value)">
+               oninput="updateDeployedTroops('${type}', this.value)">
         <span class="troop-count">${deployedTroops[type]}</span>
       `;
       troopListDiv.appendChild(div);
