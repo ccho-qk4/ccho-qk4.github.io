@@ -70,7 +70,7 @@ button:hover {
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
-.upgrade-label {
+.upgrade-label
   min-width: 120px;
   font-size: 1.1em;
   font-weight: bold;
@@ -152,7 +152,7 @@ button:hover {
 }
 
 .troop-slider {
-  flex: 1;
+  width: 200px;
   height: 8px;
   background: #2e3d53;
   border-radius: 4px;
@@ -210,7 +210,7 @@ button:hover {
   </div>
   <div class="section">
     <h3>Deploy Troops for Battle
-      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increase win percentage by 1% per troop deployed. If battle is lost, lose 30% of troops deployed.')" style="margin-left: 8px;">
+      <img src="img/info.png" alt="info" class="info-icon" onclick="showInfo(this, 'Increase win percentage by 0.1% per troop deployed. If battle is lost, lose 30% of troops deployed.')" style="margin-left: 8px;">
     </h3>
     <div id="troopList"></div>
     <p>Win Chance: <span id="winChance">50</span>%</p>
@@ -446,9 +446,9 @@ let battleCost = 500;
       troopListDiv.appendChild(div);
     });
 
-    // Win chance calculation - 1% per troop deployed
+    // Win chance calculation - 0.1% per troop deployed
     let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-    let winChance = Math.min(99, 50 + totalTroops); // Cap at 99%
+    let winChance = Math.min(99, 50 + (totalTroops * 0.1)); // Cap at 99%
     winChanceSpan.textContent = winChance;
 
     // Enable/disable battle button
@@ -553,7 +553,7 @@ window.updateDeployedTroops = function(type, value) {
     battleBtn.disabled = true;
     showBattleProgress(() => {
       let totalTroops = troopTypes.reduce((sum, t) => sum + deployedTroops[t], 0);
-      let winChance = Math.min(99, 50 + totalTroops); // Cap at 99%
+      let winChance = Math.min(99, 50 + (totalTroops * 0.1)); // Cap at 99%
       let win = Math.random() * 100 < winChance;
       
       if (win) {
