@@ -192,6 +192,26 @@ button:hover {
   font-weight: bold;
   color: #ffe066;
 }
+#saveGameBtn, #resetGameBtn {
+  margin: 4px;
+  padding: 8px 16px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+#saveGameBtn:active {
+  transform: translateY(2px);
+  background: #2E7D32 !important;
+}
+
+#resetGameBtn:active {
+  transform: translateY(2px);
+  background: #d32f2f !important;
+}
 
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
@@ -328,8 +348,13 @@ button.success {
 <body>
   <h1>Clash Royale Idle Game</h1>
   <div class="section">
+  <button id="saveGameBtn" style="background: #4CAF50;">Save Game</button>
+  <button id="resetGameBtn" style="background: #f44336;">Reset Game</button>
+</div>  
+  <div class="section">
     <h2>Goblin Stadium</h2>
     <div class="upgrade-arena" style="display: none;">
+      
   <h3>Arena Upgrade Available!</h3>
   <p id="arenaUpgradeRequirements"></p>
   <button id="upgradeArenaBtn">Upgrade Arena</button>
@@ -503,6 +528,93 @@ button.success {
 </div>
   <script>
 // Move these to the TOP of your script, before DOMContentLoaded
+// Save system
+function saveGame() {
+  const gameData = {
+    version: 1,
+    trophies,
+    gold,
+    goldPerSec,
+    mineGoldBase,
+    goblins,
+    elixirCollectors,
+    skeletons,
+    criticalHitChance,
+    battleCost,
+    chestFindChance,
+    defeatAvoidanceChance,
+    instantWinChance,
+    trophyGainBonus,
+    trophyLossReduction,
+    goldHoardChance,
+    passiveGoldMultiplier,
+    battleInProgress,
+    currentStrategy,
+    autoMinerLevel,
+    autoMinerTimer,
+    autoMinerActive,
+    troopTypes,
+    troopOwned,
+    deployedTroops,
+    unlockedTroops,
+    currentArena,
+    metaUpgrades
+  };
+  localStorage.setItem('clashIdleSave', JSON.stringify(gameData));
+}
+
+function loadGame() {
+  const savedData = localStorage.getItem('clashIdleSave');
+  if (savedData) {
+    try {
+      const gameData = JSON.parse(savedData);
+      
+      // Only load if version matches (for future compatibility)
+      if (gameData.version === 1) {
+        trophies = gameData.trophies || 0;
+        gold = gameData.gold || 0;
+        goldPerSec = gameData.goldPerSec || 0;
+        mineGoldBase = gameData.mineGoldBase || 5;
+        goblins = gameData.goblins || 0;
+        elixirCollectors = gameData.elixirCollectors || 0;
+        skeletons = gameData.skeletons || 0;
+        criticalHitChance = gameData.criticalHitChance || 0;
+        battleCost = gameData.battleCost || 500;
+        chestFindChance = gameData.chestFindChance || 0;
+        defeatAvoidanceChance = gameData.defeatAvoidanceChance || 0;
+        instantWinChance = gameData.instantWinChance || 0;
+        trophyGainBonus = gameData.trophyGainBonus || 0;
+        trophyLossReduction = gameData.trophyLossReduction || 0;
+        goldHoardChance = gameData.goldHoardChance || 0;
+        passiveGoldMultiplier = gameData.passiveGoldMultiplier || 1;
+        battleInProgress = gameData.battleInProgress || false;
+        currentStrategy = gameData.currentStrategy || 'balanced';
+        autoMinerLevel = gameData.autoMinerLevel || 0;
+        autoMinerTimer = gameData.autoMinerTimer || 0;
+        autoMinerActive = gameData.autoMinerActive || false;
+        troopTypes = gameData.troopTypes || ["Goblins"];
+        troopOwned = gameData.troopOwned || { Goblins: 0 };
+        deployedTroops = gameData.deployedTroops || { Goblins: 0 };
+        unlockedTroops = gameData.unlockedTroops || ["Goblins"];
+        currentArena = gameData.currentArena || 0;
+        
+        // Merge meta upgrades to preserve any new ones added in updates
+        metaUpgrades = {
+          ...metaUpgrades,
+          ...(gameData.metaUpgrades || {})
+        };
+        
+        return true;
+      }
+    } catch (e) {
+      console.error("Failed to load save:", e);
+    }
+  }
+  return false;
+}
+
+// Auto-save every 15 seconds
+setInterval(saveGame, 30000);
 let trophies = 0;
 let gold = 0;
 let goldPerSec = 0;
@@ -655,10 +767,32 @@ function showInfo(button, description) {
     document.addEventListener('click', closePopup);
   }, 0);
 }
+document.getElementById('saveGameBtn').addEventListener('click', () => {
+  saveGame();
+  
+  // Show save confirmation
+  const saveBtn = document.getElementById('saveGameBtn');
+  saveBtn.textContent = 'Saved!';
+  setTimeout(() => {
+    saveBtn.textContent = 'Save Game';
+  }, 2000);
+});
 
+// Reset button
+document.getElementById('resetGameBtn').addEventListener('click', () => {
+  if (confirm('Are you sure you want to reset your game? All progress will be lost!')) {
+    localStorage.removeItem('clashIdleSave');
+    location.reload();
+  }
+});
 window.addEventListener('DOMContentLoaded', function() {
-  // DOM elements
-  const trophiesSpan = document.getElementById('trophies');
+ const loaded = loadGame();
+  
+  if (loaded) {
+    console.log("Game loaded from save");
+  } else {
+    console.log("Starting new game");
+  }  const trophiesSpan = document.getElementById('trophies');
   const goldSpan = document.getElementById('gold');
   const goldPerSecSpan = document.getElementById('goldPerSec');
   const mineGoldBtn = document.getElementById('mineGoldBtn');
@@ -1216,6 +1350,8 @@ window.buyTroop = buyTroop;
 
 // Upgrade arena button click handler
 document.getElementById('upgradeArenaBtn').addEventListener('click', () => {
+    saveGame(); // Add this
+
   const nextArena = ARENAS[currentArena + 1];
   if (!nextArena) return;
 
@@ -1417,6 +1553,8 @@ function updateMetaDisplay() {
 
 // Meta upgrade event listeners
 document.getElementById('buyGoldenTouch').addEventListener('click', () => {
+    saveGame(); // Add this
+
   const cost = 1000000 * Math.pow(2, metaUpgrades.goldenTouch);
   if (gold >= cost && metaUpgrades.goldenTouch < 10) {
     gold -= cost;
@@ -1605,6 +1743,8 @@ function updateShopDisplay() {
 
 // Auto Miner
 document.getElementById('buyAutoMinerBtn').addEventListener('click', () => {
+    saveGame(); // Add this
+
   const cost = Math.floor(10000 * Math.pow(1.5, autoMinerLevel));
   if (gold >= cost) {
     gold -= cost;
@@ -1618,16 +1758,22 @@ document.getElementById('buyAutoMinerBtn').addEventListener('click', () => {
 
 // Silver Chest
 document.getElementById('buySilverChestBtn').addEventListener('click', () => {
+    saveGame(); 
+
   openChest('silver');
 });
 
 // Gold Chest
 document.getElementById('buyGoldChestBtn').addEventListener('click', () => {
+    saveGame(); 
+
   openChest('gold');
 });
 
 // Magical Chest
 document.getElementById('buyMagicalChestBtn').addEventListener('click', () => {
+    saveGame(); 
+
   openChest('magical');
 });
 </script>
